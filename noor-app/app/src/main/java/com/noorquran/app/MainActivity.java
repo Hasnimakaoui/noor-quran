@@ -128,7 +128,8 @@ public class MainActivity extends Activity {
             mushafDescLp.topMargin=4;
             mushaf.addView(mushafDesc,mushafDescLp);
             TextView openMushaf=button("متابعة القراءة",()->{tab="المصحف";showApp();});
-            LinearLayout.LayoutParams openMushafLp=lp(-1,46);
+            openMushaf.setPadding(12,8,12,8);
+            LinearLayout.LayoutParams openMushafLp=lp(-1,-2);
             openMushafLp.topMargin=12;
             mushaf.addView(openMushaf,openMushafLp);
             LinearLayout.LayoutParams mushafLp=lp(-1,-2);
@@ -155,7 +156,8 @@ public class MainActivity extends Activity {
             reciterDescLp.topMargin=3;
             reciters.addView(reciterDesc,reciterDescLp);
             TextView reciterButton=button("استمع الآن",()->{tab="القراء";showApp();});
-            LinearLayout.LayoutParams reciterButtonLp=lp(-1,44);
+            reciterButton.setPadding(12,8,12,8);
+            LinearLayout.LayoutParams reciterButtonLp=lp(-1,-2);
             reciterButtonLp.topMargin=10;
             reciters.addView(reciterButton,reciterButtonLp);
             LinearLayout.LayoutParams recitersLp=lp(-1,-2);
@@ -182,7 +184,8 @@ public class MainActivity extends Activity {
             adhkarDescLp.topMargin=3;
             adhkar.addView(adhkarDesc,adhkarDescLp);
             TextView adhkarButton=button("تصفّح الأذكار",()->{tab="الأذكار";showApp();});
-            LinearLayout.LayoutParams adhkarButtonLp=lp(-1,44);
+            adhkarButton.setPadding(12,8,12,8);
+            LinearLayout.LayoutParams adhkarButtonLp=lp(-1,-2);
             adhkarButtonLp.topMargin=10;
             adhkar.addView(adhkarButton,adhkarButtonLp);
             LinearLayout.LayoutParams adhkarLp=lp(-1,-2);
