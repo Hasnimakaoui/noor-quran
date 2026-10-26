@@ -54,7 +54,8 @@ public class MainActivity extends Activity {
             for(float x=step/2;x<w;x+=step){canvas.drawCircle(x,cy,step*0.28f,p); canvas.drawRect(x-step*0.2f,cy-step*0.2f,x+step*0.2f,cy+step*0.2f,p); canvas.drawCircle(x,cy,step*0.46f,p);}
             p.setStyle(android.graphics.Paint.Style.FILL); p.setColor(0xffd8b96f); canvas.drawCircle(step/2,cy,2.5f,p); canvas.drawCircle(w-step/2,cy,2.5f,p);
         }
-    }\n    private void showApp() {
+    }
+    private void showApp() {
         root=column(); root.setBackgroundColor(bg); root.setPadding(14,10,14,8);
         LinearLayout header=row(); header.setPadding(14,8,14,8); header.setBackground(shape(0xff132820,24,0xffb99a59));
         LinearLayout emblem=column(); TextView brand=text("۞",30,gold,true); brand.setBackground(shape(0xff10231c,44,0xffc9a75d)); emblem.addView(brand,lp(46,46)); header.addView(emblem,lp(44,48));
