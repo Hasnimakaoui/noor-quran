@@ -35,6 +35,7 @@ public class MainActivity extends Activity {
     private MediaPlayer player;
     private String selectedEdition="";
     private int reciterScreenStage=0;
+    private volatile int playbackRequestId=0;
     private String selectedReciter="عبد الباسط عبد الصمد — مجوّد";
     private int selectedSurah=1;
     private String selectedDhikrCategory = null;
@@ -407,10 +408,12 @@ public class MainActivity extends Activity {
     }
 
     private void playSurah() {
+        final int requestId=++playbackRequestId;
         stopAudio();
-        if(audioStatus!=null) audioStatus.setText("جارٍ البحث عن تلاوة "+selectedReciter+"...");
+        if(audioStatus!=null) audioStatus.setText("جارٍ البحث عن التلاوة...");
         final String wanted=selectedEdition;
         final int surah=selectedSurah;
+        final String reciterLabel=selectedReciter;
         new Thread(()->{
             HttpURLConnection connection=null;
             try {
@@ -422,10 +425,12 @@ public class MainActivity extends Activity {
                 try(BufferedReader reader=new BufferedReader(new InputStreamReader(connection.getInputStream(),"UTF-8"))){
                     String line; while((line=reader.readLine())!=null) jsonText.append(line);
                 }
+                if(requestId!=playbackRequestId) return;
                 JSONObject rootJson=new JSONObject(jsonText.toString());
                 JSONArray reciters=rootJson.optJSONArray("reciters");
                 String streamUrl=null;
                 if(reciters!=null) for(int i=0;i<reciters.length()&&streamUrl==null;i++){
+                    if(requestId!=playbackRequestId) return;
                     JSONObject reciter=reciters.optJSONObject(i);
                     String name=reciter==null?"":reciter.optString("name","");
                     boolean match=false;
@@ -441,7 +446,7 @@ public class MainActivity extends Activity {
                         if(m==null) continue;
                         String server=m.optString("server","");
                         String available=m.optString("surah_list","");
-                        if(server.length()>0&&(available.isEmpty()||(","+available).contains(","+surah+","))){
+                        if(server.length()>0&&(available.isEmpty()||(","+available+",").contains(","+surah+","))){
                             if(!server.endsWith("/")) server+="/";
                             streamUrl=server+String.format(Locale.US,"%03d",surah)+".mp3";
                             break;
@@ -451,18 +456,33 @@ public class MainActivity extends Activity {
                 if(streamUrl==null) throw new Exception("لم نعثر على تلاوة متاحة لهذا القارئ");
                 final String audioUrl=streamUrl;
                 runOnUiThread(()->{
-                    if(audioStatus!=null) audioStatus.setText("جارٍ تشغيل "+selectedReciter+"...");
+                    if(requestId!=playbackRequestId) return;
+                    if(audioStatus!=null) audioStatus.setText("جارٍ تشغيل "+reciterLabel+"...");
                     try {
                         MediaPlayer mp=new MediaPlayer();
                         mp.setAudioAttributes(new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build());
                         mp.setDataSource(audioUrl);
-                        mp.setOnPreparedListener(p->{player=p;p.start();runOnUiThread(()->{if(audioStatus!=null)audioStatus.setText("يعمل الآن: "+selectedReciter);});});
-                        mp.setOnErrorListener((p,what,extra)->{runOnUiThread(()->{if(audioStatus!=null)audioStatus.setText("تعذر تشغيل ملف التلاوة لهذا القارئ.");});p.release();return true;});
-                        player=mp; mp.prepareAsync();
-                    } catch(Exception ex) { if(audioStatus!=null) audioStatus.setText("تعذر تشغيل التلاوة."); }
+                        mp.setOnPreparedListener(p->{
+                            if(requestId!=playbackRequestId){p.release();return;}
+                            player=p;
+                            p.start();
+                            if(audioStatus!=null) audioStatus.setText("يعمل الآن: "+reciterLabel);
+                        });
+                        mp.setOnErrorListener((p,what,extra)->{
+                            if(requestId==playbackRequestId&&audioStatus!=null) audioStatus.setText("تعذر تشغيل ملف التلاوة لهذا القارئ.");
+                            if(player==p) player=null;
+                            p.release(); return true;
+                        });
+                        player=mp;
+                        mp.prepareAsync();
+                    } catch(Exception ex) {
+                        if(requestId==playbackRequestId&&audioStatus!=null) audioStatus.setText("تعذر تشغيل التلاوة.");
+                    }
                 });
             } catch(Exception ex) {
-                runOnUiThread(()->{if(audioStatus!=null)audioStatus.setText("لم أتمكن من تحميل قائمة التلاوات. تحقق من الإنترنت وحاول مجدداً.");});
+                runOnUiThread(()->{
+                    if(requestId==playbackRequestId&&audioStatus!=null) audioStatus.setText("لم أتمكن من تحميل قائمة التلاوات. تحقق من الإنترنت وحاول مجدداً.");
+                });
             } finally { if(connection!=null) connection.disconnect(); }
         }).start();
     }
@@ -470,6 +490,6 @@ public class MainActivity extends Activity {
         try { if(player!=null){ if(player.isPlaying()) player.stop(); player.release(); player=null; } } catch(Exception ignored) { player=null; }
         if(audioStatus!=null) audioStatus.setText("تم إيقاف التلاوة");
     }
-    @Override protected void onDestroy(){stopAudio();super.onDestroy();}
+    @Override protected void onDestroy(){playbackRequestId++;stopAudio();super.onDestroy();}
     private void changePage(int delta) { page=Math.max(1,Math.min(604,page+delta)); prefs.edit().putInt("page",page).apply(); renderTab(); }
 }
