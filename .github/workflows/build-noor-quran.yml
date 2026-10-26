@@ -10,11 +10,15 @@ permissions:
 
 jobs:
   build:
-    name: Build debug APK
+    name: Build Android APK from complete upstream source
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout source
+      - name: Checkout complete Quran Android source
         uses: actions/checkout@v4
+        with:
+          repository: quran/quran_android
+          ref: main
+          path: source
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
@@ -22,18 +26,17 @@ jobs:
           java-version: '17'
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: wrapper
       - name: Build debug APK
+        working-directory: source
         run: |
-          if [ -f ./gradlew ]; then
-            chmod +x ./gradlew
-            ./gradlew assembleDebug --stacktrace
-          else
-            gradle assembleDebug --stacktrace
-          fi
+          chmod +x ./gradlew
+          ./gradlew assembleDebug --stacktrace
       - name: Upload APK
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: noor-quran-debug-apk
-          path: '**/build/outputs/apk/debug/*.apk'
+          path: source/**/build/outputs/apk/debug/*.apk
           if-no-files-found: error
