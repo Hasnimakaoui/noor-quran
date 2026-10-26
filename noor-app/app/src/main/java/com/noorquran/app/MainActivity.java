@@ -62,6 +62,10 @@ public class MainActivity extends Activity {
             section("تابع تلاوتك");
             LinearLayout resume=column(); resume.addView(text("المصحف المدني",17,gold,true)); resume.addView(text("صفحتك المحفوظة: "+page+" من 604",14,cream,false));
             LinearLayout actions=row(); actions.addView(button("السابق",()->changePage(-1)),new LinearLayout.LayoutParams(0,-2,1)); actions.addView(button("التالي",()->changePage(1)),new LinearLayout.LayoutParams(0,-2,1)); resume.addView(actions);
+            LinearLayout marks=row();
+            marks.addView(button("حفظ علامة",()->{prefs.edit().putInt("bookmark",page).apply();Toast.makeText(this,"تم حفظ العلامة عند الصفحة "+page,Toast.LENGTH_SHORT).show();}),new LinearLayout.LayoutParams(0,-2,1));
+            marks.addView(button("الذهاب للعلامة",()->{page=prefs.getInt("bookmark",1);prefs.edit().putInt("page",page).apply();renderTab();}),new LinearLayout.LayoutParams(0,-2,1));
+            resume.addView(marks);
             resume.addView(text("معاينة القارئ والصفحة",12,muted,false)); card(resume);
             TextView pageLabel=text("صفحة المصحف المدني رقم "+page,15,gold,true); card(pageLabel);
             quranWebView=new WebView(this); quranWebView.getSettings().setJavaScriptEnabled(true); quranWebView.getSettings().setDomStorageEnabled(true); quranWebView.setWebViewClient(new WebViewClient()); quranWebView.setBackgroundColor(cream);
