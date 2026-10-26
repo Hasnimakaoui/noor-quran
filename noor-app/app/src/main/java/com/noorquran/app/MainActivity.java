@@ -61,7 +61,7 @@ public class MainActivity extends Activity {
     private void showApp() {
         root=column(); root.setBackgroundColor(bg); root.setPadding(12,10,12,8);
         LinearLayout header=row(); header.setPadding(8,8,8,8); header.setGravity(Gravity.CENTER_VERTICAL); header.setBackground(shape(0xff132820,22,0xffb99a59));
-        LinearLayout emblem=column(); emblem.setGravity(Gravity.CENTER); TextView brand=text("۞",26,gold,true); brand.setBackground(shape(0xff10231c,40,0xffc9a75d)); emblem.addView(brand,lp(40,40)); header.addView(emblem,lp(42,42));
+        LinearLayout emblem=column(); emblem.setGravity(Gravity.CENTER); TextView brand=text("✦",24,gold,true); brand.setIncludeFontPadding(false); brand.setBackground(shape(0xff10231c,40,0xffc9a75d)); emblem.addView(brand,lp(40,40)); header.addView(emblem,lp(42,42));
         LinearLayout title=column(); title.setGravity(Gravity.CENTER_VERTICAL); title.setMinimumWidth(0); TextView appTitle=text("نُورُ القُرآن",20,cream,true); appTitle.setSingleLine(true); appTitle.setMaxLines(1); appTitle.setEllipsize(android.text.TextUtils.TruncateAt.END); title.addView(appTitle,lp(-1,28)); TextView appSubtitle=text("المصحف • التلاوة • الأذكار",10,muted,false); appSubtitle.setSingleLine(true); appSubtitle.setEllipsize(android.text.TextUtils.TruncateAt.END); title.addView(appSubtitle,lp(-1,18)); LinearLayout.LayoutParams titleParams=new LinearLayout.LayoutParams(0,46,1); titleParams.leftMargin=6; titleParams.rightMargin=6; header.addView(title,titleParams);
         TextView moon=text("☾",21,gold,true); moon.setBackground(shape(0xff263d34,36,0)); header.addView(moon,lp(36,36)); root.addView(header);
         View line=new View(this); line.setBackgroundColor(0xff263f35); LinearLayout.LayoutParams lineParams=lp(-1,1);lineParams.topMargin=9;root.addView(line,lineParams);
@@ -94,7 +94,7 @@ public class MainActivity extends Activity {
             heroBg.setStroke(1,0xffd8b96f);
             hero.setBackground(heroBg);
             // Use a single clean, high-contrast emblem above the title.
-            TextView crest=text("۞",30,0xffffd36b,true);
+            TextView crest=text("✦",30,0xffffd36b,true);
             crest.setGravity(Gravity.CENTER);
             crest.setIncludeFontPadding(false);
             crest.setShadowLayer(2.5f,0,0,0xffd8b96f);
@@ -182,7 +182,7 @@ public class MainActivity extends Activity {
             adhkar.setGravity(Gravity.CENTER);
             adhkar.setPadding(14,14,14,14);
             adhkar.setBackground(shape(0xff172e24,20,0xffa98d50));
-            TextView adhkarIcon=text("۞",24,gold,true);
+            TextView adhkarIcon=text("✦",24,gold,true);
             adhkarIcon.setGravity(Gravity.CENTER);
             adhkarIcon.setBackground(shape(0xff10231b,40,0xff685b39));
             adhkar.addView(adhkarIcon,lp(50,50));
@@ -302,7 +302,7 @@ public class MainActivity extends Activity {
                 reciterContent.addView(button("← رجوع",()->{reciterScreenStage=0;renderTab();}),lp(-1,48));
                 String[] reciterNames={"عبد الباسط عبد الصمد — مجوّد","أحمد العجمي","عبد الله خلف","محمد اللحيدان"};
                 String[] editions={"عبد الباسط عبد الصمد","أحمد العجمي","عبد الله الخلف","محمد اللحيدان"};
-                String[] symbols={"۞","♪","♫","❖"};
+                String[] symbols={"✦","♪","♫","❖"};
                 for(int ri=0;ri<reciterNames.length;ri++){
                     final int chosen=ri;
                     LinearLayout item=column(); item.setGravity(Gravity.CENTER); item.setPadding(16,16,16,16);
@@ -323,7 +323,7 @@ public class MainActivity extends Activity {
                     final int chosenSurah=si+1;
                     LinearLayout tile=column(); tile.setGravity(Gravity.CENTER); tile.setPadding(10,14,10,14);
                     tile.setBackground(shape(0xff142a20,18,0xff526c54));
-                    TextView picture=text("۞",28,0xffffd36b,true); picture.setBackground(shape(0xff203c2e,50,0xffa98d50));
+                    TextView picture=text("✦",28,0xffffd36b,true); picture.setBackground(shape(0xff203c2e,50,0xffa98d50));
                     LinearLayout.LayoutParams pictureLp=lp(66,66); pictureLp.bottomMargin=6; tile.addView(picture,pictureLp);
                     tile.addView(text(surahs[si],15,cream,true),lp(-1,-2));
                     LinearLayout.LayoutParams tileLp=lp(-1,-2); tileLp.bottomMargin=8; reciterContent.addView(tile,tileLp);
