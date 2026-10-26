@@ -54,7 +54,7 @@ public class MainActivity extends Activity {
         body=column(); LinearLayout.LayoutParams bp=new LinearLayout.LayoutParams(-1,0,1); bp.topMargin=8; root.addView(body,bp);
         nav=row(); nav.setBackground(shape(panel,24,0xff344e43)); nav.setPadding(3,4,3,4);
         String[] labels={"الرئيسية","المصحف","القراء","الأذكار"};
-        for(String label:labels){ TextView n=text(label,12,label.equals(tab)?gold:muted,label.equals(tab)); n.setOnClickListener(v->{tab=label;showApp();}); nav.addView(n,new LinearLayout.LayoutParams(0,52,1)); }
+        for(String label:labels){ TextView n=text(label,12,label.equals(tab)?gold:muted,label.equals(tab)); n.setOnClickListener(v->{tab=label.equals("القراء")?"المصحف":label;showApp();}); nav.addView(n,new LinearLayout.LayoutParams(0,52,1)); }
         root.addView(nav,lp(-1,58)); setContentView(root); renderTab();
     }
     private void section(String s) { TextView t=text(s,19,cream,true); t.setGravity(Gravity.RIGHT|Gravity.CENTER_VERTICAL); t.setPadding(4,14,4,10); body.addView(t,lp(-1,-2)); }
@@ -81,7 +81,7 @@ public class MainActivity extends Activity {
             LinearLayout.LayoutParams mp=lp(-1,-2);mp.bottomMargin=12;home.addView(mushaf,mp);
             LinearLayout duo=row();
             LinearLayout reciters=column();reciters.setGravity(Gravity.CENTER);reciters.setPadding(8,14,8,14);reciters.setBackground(shape(0xff182c25,22,0xff6c805c));
-            reciters.addView(text("♫",32,gold,true),lp(-1,42));reciters.addView(text("القراء",18,cream,true),lp(-1,32));reciters.addView(text("استمع إلى تلاوات خاشعة",11,muted,false),lp(-1,34));reciters.addView(button("اختر قارئًا",()->{tab="القراء";showApp();}),lp(-1,44));
+            reciters.addView(text("♫",32,gold,true),lp(-1,42));reciters.addView(text("القراء",18,cream,true),lp(-1,32));reciters.addView(text("استمع إلى تلاوات خاشعة",11,muted,false),lp(-1,34));reciters.addView(button("اختر قارئًا",()->{tab="المصحف";showApp();}),lp(-1,44));
             LinearLayout adhkar=column();adhkar.setGravity(Gravity.CENTER);adhkar.setPadding(8,14,8,14);adhkar.setBackground(shape(0xff182c25,22,0xff6c805c));
             adhkar.addView(text("❋",32,gold,true),lp(-1,42));adhkar.addView(text("الأذكار",18,cream,true),lp(-1,32));adhkar.addView(text("أذكار الصباح والمساء",11,muted,false),lp(-1,34));adhkar.addView(button("افتح الأذكار",()->{tab="الأذكار";showApp();}),lp(-1,44));
             duo.addView(reciters,new LinearLayout.LayoutParams(0,-2,1));LinearLayout.LayoutParams gap=lp(10,1);duo.addView(new View(this),gap);duo.addView(adhkar,new LinearLayout.LayoutParams(0,-2,1));home.addView(duo);
@@ -89,7 +89,6 @@ public class MainActivity extends Activity {
             homeScroll.addView(home);body.addView(homeScroll,new LinearLayout.LayoutParams(-1,0,1));
             return;
         }
-        if(tab.equals("القراء")) tab="المصحف";
 
         if(tab.equals("القرآن")) {
             LinearLayout hero=column(); hero.setPadding(16,14,16,14); hero.setBackground(shape(0xff172c25,24,0xff3c5947));
