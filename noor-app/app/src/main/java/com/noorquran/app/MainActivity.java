@@ -39,15 +39,15 @@ public class MainActivity extends Activity {
     private TextView audioStatus;
     @Override public void onCreate(Bundle b) { super.onCreate(b); prefs=getSharedPreferences("noor",0); page=prefs.getInt("page",1); dhikrCount=prefs.getInt("dhikr",0); showApp(); }
     private GradientDrawable shape(int color, int radius, int stroke) { GradientDrawable d=new GradientDrawable(); d.setColor(color); d.setCornerRadius(radius); if(stroke>0)d.setStroke(1,stroke); return d; }
-    private TextView text(String s,int size,int color,boolean bold) { TextView t=new TextView(this); t.setText(s); t.setTextSize(size); t.setTextColor(color); t.setGravity(Gravity.CENTER); t.setTypeface(Typeface.create("sans-serif",bold?Typeface.BOLD:Typeface.NORMAL)); t.setPadding(8,8,8,8); return t; }
+    private TextView text(String s,int size,int color,boolean bold) { TextView t=new TextView(this); t.setText(s); t.setTextSize(size); t.setTextColor(color); t.setGravity(Gravity.CENTER); t.setTypeface(Typeface.create("sans-serif",bold?Typeface.BOLD:Typeface.NORMAL)); t.setPadding(3,3,3,3); t.setIncludeFontPadding(true); return t; }
     private LinearLayout column() { LinearLayout l=new LinearLayout(this); l.setOrientation(LinearLayout.VERTICAL); return l; }
     private LinearLayout row() { LinearLayout l=new LinearLayout(this); l.setOrientation(LinearLayout.HORIZONTAL); l.setGravity(Gravity.CENTER_VERTICAL); return l; }
     private LinearLayout.LayoutParams lp(int w,int h) { return new LinearLayout.LayoutParams(w,h); }
     private TextView button(String s,Runnable action) { TextView v=text(s,15,cream,true); v.setBackground(shape(panel,22,gold)); v.setPadding(14,12,14,12); v.setOnClickListener(x->action.run()); return v; }
-    private void showApp() {
+\n    private class OrnamentView extends View {\n        private final android.graphics.Paint p = new android.graphics.Paint(3);\n        public OrnamentView(android.content.Context context){super(context);setLayerType(View.LAYER_TYPE_SOFTWARE,null);}\n        @Override protected void onDraw(android.graphics.Canvas canvas){\n            super.onDraw(canvas); float w=getWidth(), h=getHeight(); p.setStyle(android.graphics.Paint.Style.STROKE); p.setStrokeWidth(1.3f); p.setColor(0x99d8b96f);\n            float cy=h/2f; float step=Math.max(22f,Math.min(34f,h*0.8f));\n            for(float x=step/2;x<w;x+=step){canvas.drawCircle(x,cy,step*0.28f,p); canvas.drawRect(x-step*0.2f,cy-step*0.2f,x+step*0.2f,cy+step*0.2f,p); canvas.drawCircle(x,cy,step*0.46f,p);}\n            p.setStyle(android.graphics.Paint.Style.FILL); p.setColor(0xffd8b96f); canvas.drawCircle(step/2,cy,2.5f,p); canvas.drawCircle(w-step/2,cy,2.5f,p);\n        }\n    }\n\n    private void showApp() {
         root=column(); root.setBackgroundColor(bg); root.setPadding(14,10,14,8);
-        LinearLayout header=row(); header.setPadding(14,8,14,8); header.setBackground(shape(panel,24,0xff344e43));
-        LinearLayout emblem=column(); TextView brand=text("۞",28,gold,true); emblem.addView(brand,lp(44,44)); header.addView(emblem,lp(44,48));
+        LinearLayout header=row(); header.setPadding(14,8,14,8); header.setBackground(shape(0xff132820,24,0xffb99a59));
+        LinearLayout emblem=column(); TextView brand=text("۞",30,gold,true); brand.setBackground(shape(0xff10231c,44,0xffc9a75d)); emblem.addView(brand,lp(46,46)); header.addView(emblem,lp(44,48));
         LinearLayout title=column(); title.setGravity(Gravity.CENTER_VERTICAL); title.addView(text("نُورُ القُرآن",22,cream,true),lp(-1,30)); title.addView(text("المصحف • التلاوة • الأذكار",11,muted,false),lp(-1,20)); header.addView(title,new LinearLayout.LayoutParams(0,48,1));
         TextView moon=text("☾",23,gold,true); moon.setBackground(shape(0xff263d34,40,0)); header.addView(moon,lp(42,42)); root.addView(header);
         View line=new View(this); line.setBackgroundColor(0xff263f35); LinearLayout.LayoutParams lineParams=lp(-1,1);lineParams.topMargin=9;root.addView(line,lineParams);
@@ -75,17 +75,17 @@ public class MainActivity extends Activity {
             hero.addView(text("مصحفك وقراءك وأذكارك في مكانٍ واحد",12,cream,false),lp(-1,28));
             LinearLayout.LayoutParams hp=lp(-1,-2);hp.bottomMargin=16;home.addView(hero,hp);
             TextView quick=text("ابدأ رحلتك مع القرآن",19,cream,true);quick.setGravity(Gravity.RIGHT|Gravity.CENTER_VERTICAL);home.addView(quick,lp(-1,42));
-            LinearLayout mushaf=column();mushaf.setGravity(Gravity.CENTER);mushaf.setPadding(16,14,16,14);mushaf.setBackground(shape(0xff1c3329,24,0xffa98a4f));
-            mushaf.addView(text("▤",32,gold,true),lp(-1,44));mushaf.addView(text("المصحف الشريف",21,cream,true),lp(-1,36));mushaf.addView(text("تابع القراءة من الصفحة "+page+" من 604",12,muted,false),lp(-1,28));
+            LinearLayout mushaf=column();mushaf.setGravity(Gravity.CENTER);mushaf.setPadding(16,14,16,14);mushaf.setBackground(shape(0xff203c2e,24,0xffd0ad60));
+            mushaf.addView(new OrnamentView(this),lp(-1,30));mushaf.addView(text("المُصْحَفُ الشَّرِيف",24,cream,true),lp(-1,44));mushaf.addView(text("مُصْحَفٌ مَدَنِيٌّ • ٦٠٤ صَفْحَة",13,0xffe3d2a4,true),lp(-1,30));mushaf.addView(text("تتابع من الصفحة "+page+" من 604",14,muted,false),lp(-1,32));
             TextView openMushaf=button("افتح المصحف  ←",()->{tab="المصحف";showApp();});mushaf.addView(openMushaf,lp(-1,48));
             LinearLayout.LayoutParams mp=lp(-1,-2);mp.bottomMargin=12;home.addView(mushaf,mp);
             LinearLayout duo=row();
-            LinearLayout reciters=column();reciters.setGravity(Gravity.CENTER);reciters.setPadding(8,14,8,14);reciters.setBackground(shape(0xff182c25,22,0xff6c805c));
+            LinearLayout reciters=column();reciters.setGravity(Gravity.CENTER);reciters.setPadding(8,14,8,14);reciters.setBackground(shape(0xff20382c,22,0xffb99a59));
             reciters.addView(text("♫",32,gold,true),lp(-1,42));reciters.addView(text("القراء",18,cream,true),lp(-1,32));reciters.addView(text("استمع إلى تلاوات خاشعة",11,muted,false),lp(-1,34));reciters.addView(button("اختر قارئًا",()->{tab="المصحف";showApp();}),lp(-1,44));
-            LinearLayout adhkar=column();adhkar.setGravity(Gravity.CENTER);adhkar.setPadding(8,14,8,14);adhkar.setBackground(shape(0xff182c25,22,0xff6c805c));
+            LinearLayout adhkar=column();adhkar.setGravity(Gravity.CENTER);adhkar.setPadding(8,14,8,14);adhkar.setBackground(shape(0xff20382c,22,0xffb99a59));
             adhkar.addView(text("❋",32,gold,true),lp(-1,42));adhkar.addView(text("الأذكار",18,cream,true),lp(-1,32));adhkar.addView(text("أذكار الصباح والمساء",11,muted,false),lp(-1,34));adhkar.addView(button("افتح الأذكار",()->{tab="الأذكار";showApp();}),lp(-1,44));
             duo.addView(reciters,new LinearLayout.LayoutParams(0,-2,1));LinearLayout.LayoutParams gap=lp(10,1);duo.addView(new View(this),gap);duo.addView(adhkar,new LinearLayout.LayoutParams(0,-2,1));home.addView(duo);
-            home.addView(text("❈  اللهم اجعل القرآن ربيع قلوبنا  ❈",13,gold,false),lp(-1,52));
+            home.addView(new OrnamentView(this),lp(-1,38));home.addView(text("اللَّهُمَّ اجْعَلِ القُرْآنَ رَبِيعَ قُلُوبِنَا",15,0xffffd987,true),lp(-1,44));
             homeScroll.addView(home);body.addView(homeScroll,new LinearLayout.LayoutParams(-1,0,1));
             return;
         }
