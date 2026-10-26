@@ -16,6 +16,12 @@ import android.content.Intent;
 import android.net.Uri;
 import android.media.AudioAttributes;
 import android.media.MediaPlayer;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.Locale;
 
 public class MainActivity extends Activity {
@@ -27,7 +33,7 @@ public class MainActivity extends Activity {
     private float downX;
     private WebView quranWebView;
     private MediaPlayer player;
-    private String selectedEdition="ar.abdulbasitmujawwad";
+    private String selectedEdition="";
     private String selectedReciter="عبد الباسط عبد الصمد — مجوّد";
     private int selectedSurah=1;
     private TextView audioStatus;
@@ -64,7 +70,7 @@ public class MainActivity extends Activity {
             TextView sourceNote=text("يُعرض محتوى المصحف عبر الإنترنت. حفظ الصفحات للعمل دون إنترنت لم يُفعّل بعد.",11,muted,false); body.addView(sourceNote,lp(-1,-2));
             section("استمع إلى التلاوة");
             String[] reciterNames={"عبد الباسط عبد الصمد — مجوّد","أحمد العجمي","عبد الله خلف","محمد اللحيدان"};
-            String[] editions={"ar.abdulbasitmujawwad","ar.ajamy","ar.hudhaify","ar.muhammadayyoub"};
+            String[] editions={"عبد الباسط عبد الصمد","أحمد العجمي","عبد الله الخلف","محمد اللحيدان"};
             Spinner reciterSpinner=new Spinner(this);
             reciterSpinner.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_spinner_dropdown_item,reciterNames));
             int initialEdition=0; for(int i=0;i<editions.length;i++) if(editions[i].equals(selectedEdition)) initialEdition=i;
@@ -107,16 +113,63 @@ public class MainActivity extends Activity {
     }
     private void playSurah() {
         stopAudio();
-        if(audioStatus!=null) audioStatus.setText("جارٍ تحميل التلاوة...");
-        final String url="https://cdn.islamic.network/quran/audio-surah/128/"+selectedEdition+"/"+selectedSurah+".mp3";
-        MediaPlayer mp=new MediaPlayer();
-        try {
-            mp.setAudioAttributes(new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build());
-            mp.setDataSource(url);
-            mp.setOnPreparedListener(p->{player=p;p.start();runOnUiThread(()->{if(audioStatus!=null)audioStatus.setText("يعمل الآن: "+selectedReciter);});});
-            mp.setOnErrorListener((p,what,extra)->{runOnUiThread(()->{if(audioStatus!=null)audioStatus.setText("تعذر تشغيل هذه التلاوة. تحقق من الإنترنت أو اختر قارئاً آخر.");});p.release();return true;});
-            player=mp; mp.prepareAsync();
-        } catch(Exception e) { mp.release(); player=null; if(audioStatus!=null)audioStatus.setText("تعذر تحميل الصوت. تحقق من اتصال الإنترنت."); }
+        if(audioStatus!=null) audioStatus.setText("جارٍ البحث عن تلاوة "+selectedReciter+"...");
+        final String wanted=selectedEdition;
+        final int surah=selectedSurah;
+        new Thread(()->{
+            HttpURLConnection connection=null;
+            try {
+                URL api=new URL("https://www.mp3quran.net/api/v3/reciters?language=ar");
+                connection=(HttpURLConnection)api.openConnection();
+                connection.setConnectTimeout(12000); connection.setReadTimeout(12000);
+                connection.setRequestMethod("GET");
+                StringBuilder jsonText=new StringBuilder();
+                try(BufferedReader reader=new BufferedReader(new InputStreamReader(connection.getInputStream(),"UTF-8"))){
+                    String line; while((line=reader.readLine())!=null) jsonText.append(line);
+                }
+                JSONObject rootJson=new JSONObject(jsonText.toString());
+                JSONArray reciters=rootJson.optJSONArray("reciters");
+                String streamUrl=null;
+                if(reciters!=null) for(int i=0;i<reciters.length()&&streamUrl==null;i++){
+                    JSONObject reciter=reciters.optJSONObject(i);
+                    String name=reciter==null?"":reciter.optString("name","");
+                    boolean match=false;
+                    if(wanted.contains("عبد الباسط")) match=name.contains("عبدالباسط")||name.contains("عبد الباسط");
+                    else if(wanted.contains("العجمي")) match=name.contains("العجمي");
+                    else if(wanted.contains("الخلف")) match=name.contains("الخلف")||name.contains("خلف");
+                    else if(wanted.contains("اللحيدان")) match=name.contains("اللحيدان");
+                    if(!match) continue;
+                    JSONArray moshafs=reciter.optJSONArray("moshaf");
+                    if(moshafs==null||moshafs.length()==0) continue;
+                    for(int j=0;j<moshafs.length();j++){
+                        JSONObject m=moshafs.optJSONObject(j);
+                        if(m==null) continue;
+                        String server=m.optString("server","");
+                        String available=m.optString("surah_list","");
+                        if(server.length()>0&&(available.isEmpty()||(","+available).contains(","+surah+","))){
+                            if(!server.endsWith("/")) server+="/";
+                            streamUrl=server+String.format(Locale.US,"%03d",surah)+".mp3";
+                            break;
+                        }
+                    }
+                }
+                if(streamUrl==null) throw new Exception("لم نعثر على تلاوة متاحة لهذا القارئ");
+                final String audioUrl=streamUrl;
+                runOnUiThread(()->{
+                    if(audioStatus!=null) audioStatus.setText("جارٍ تشغيل "+selectedReciter+"...");
+                    try {
+                        MediaPlayer mp=new MediaPlayer();
+                        mp.setAudioAttributes(new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build());
+                        mp.setDataSource(audioUrl);
+                        mp.setOnPreparedListener(p->{player=p;p.start();runOnUiThread(()->{if(audioStatus!=null)audioStatus.setText("يعمل الآن: "+selectedReciter);});});
+                        mp.setOnErrorListener((p,what,extra)->{runOnUiThread(()->{if(audioStatus!=null)audioStatus.setText("تعذر تشغيل ملف التلاوة لهذا القارئ.");});p.release();return true;});
+                        player=mp; mp.prepareAsync();
+                    } catch(Exception ex) { if(audioStatus!=null) audioStatus.setText("تعذر تشغيل التلاوة."); }
+                });
+            } catch(Exception ex) {
+                runOnUiThread(()->{if(audioStatus!=null)audioStatus.setText("لم أتمكن من تحميل قائمة التلاوات. تحقق من الإنترنت وحاول مجدداً.");});
+            } finally { if(connection!=null) connection.disconnect(); }
+        }).start();
     }
     private void stopAudio() {
         try { if(player!=null){ if(player.isPlaying()) player.stop(); player.release(); player=null; } } catch(Exception ignored) { player=null; }
