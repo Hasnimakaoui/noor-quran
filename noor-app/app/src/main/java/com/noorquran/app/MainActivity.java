@@ -74,70 +74,101 @@ public class MainActivity extends Activity {
     private void renderTab() {
         body.removeAllViews();
         if(tab.equals("الرئيسية")) {
-            // Responsive home layout: one scroll container fills the available area,
-            // cards use measured heights and rows have explicit spacing.
+            // Premium, balanced home screen. Keep all decorations inside measured cards
+            // and let the scroll area occupy the available body height.
             ScrollView homeScroll=new ScrollView(this);
             homeScroll.setFillViewport(true);
+            homeScroll.setClipToPadding(false);
             homeScroll.setVerticalScrollBarEnabled(false);
             LinearLayout home=column();
-            home.setPadding(4,8,4,16);
+            home.setPadding(2,8,2,14);
 
             LinearLayout hero=column();
             hero.setGravity(Gravity.CENTER);
-            hero.setPadding(12,12,12,12);
-            hero.setBackground(shape(0xff132820,22,0xffb99a59));
-            hero.addView(text("نُورُ القُرآن",26,cream,true),lp(-1,42));
-            hero.addView(text("وَرَتِّلِ الْقُرْآنَ تَرْتِيلًا",18,0xffe2c98d,true),lp(-1,34));
+            hero.setPadding(14,14,14,14);
+            GradientDrawable heroBg=new GradientDrawable(GradientDrawable.Orientation.TL_BR,
+                    new int[]{0xff294b3b,0xff172f25,0xff0d1d17});
+            heroBg.setCornerRadius(26);
+            heroBg.setStroke(1,0xffd8b96f);
+            hero.setBackground(heroBg);
+            TextView crest=text("۞",28,gold,true);
+            hero.addView(crest,lp(-1,34));
+            hero.addView(text("نُورُ القُرآن",28,cream,true),lp(-1,42));
+            hero.addView(text("وَرَتِّلِ الْقُرْآنَ تَرْتِيلًا",19,0xffead49a,true),lp(-1,34));
+            View goldLine=new View(this);
+            goldLine.setBackground(shape(0xffb99a59,4,0));
+            LinearLayout.LayoutParams goldLineLp=lp(72,2);
+            goldLineLp.topMargin=5; goldLineLp.bottomMargin=7;
+            hero.addView(goldLine,goldLineLp);
             hero.addView(text("سكينةٌ للقلب، ونورٌ للطريق",12,muted,false),lp(-1,24));
             LinearLayout.LayoutParams heroLp=lp(-1,-2);
-            heroLp.bottomMargin=12;
+            heroLp.bottomMargin=14;
             home.addView(hero,heroLp);
+
+            TextView sectionTitle=text("بوابتك إلى الطمأنينة",17,cream,true);
+            sectionTitle.setGravity(Gravity.RIGHT|Gravity.CENTER_VERTICAL);
+            home.addView(sectionTitle,lp(-1,34));
 
             LinearLayout mushaf=column();
             mushaf.setGravity(Gravity.CENTER);
-            mushaf.setPadding(12,10,12,10);
-            mushaf.setBackground(shape(0xff203c2e,20,0xffd0ad60));
-            mushaf.addView(text("▤",30,gold,true),lp(-1,36));
-            mushaf.addView(text("المصحف الشريف",20,cream,true),lp(-1,32));
-            mushaf.addView(text("قراءة الصفحات • 604 صفحة",12,muted,false),lp(-1,26));
-            mushaf.addView(button("افتح المصحف",()->{tab="المصحف";showApp();}),lp(-1,44));
+            mushaf.setPadding(14,12,14,12);
+            mushaf.setBackground(shape(0xff203c2e,22,0xffd0ad60));
+            LinearLayout mushafHead=row();
+            mushafHead.setGravity(Gravity.CENTER);
+            TextView mushafIcon=text("▤",34,gold,true);
+            mushafIcon.setBackground(shape(0xff14291f,44,0xff8d7545));
+            mushafHead.addView(mushafIcon,lp(54,54));
+            LinearLayout mushafTitle=column();
+            mushafTitle.setGravity(Gravity.CENTER_VERTICAL);
+            mushafTitle.addView(text("المصحف الشريف",20,cream,true),lp(-1,32));
+            mushafTitle.addView(text("قراءة هادئة • 604 صفحة",12,0xffd9cba6,false),lp(-1,24));
+            LinearLayout.LayoutParams mushafTitleLp=new LinearLayout.LayoutParams(0,-2,1);
+            mushafTitleLp.leftMargin=10;
+            mushafHead.addView(mushafTitle,mushafTitleLp);
+            mushaf.addView(mushafHead,lp(-1,-2));
+            TextView openMushaf=button("متابعة القراءة  ←",()->{tab="المصحف";showApp();});
+            LinearLayout.LayoutParams openMushafLp=lp(-1,44);
+            openMushafLp.topMargin=10;
+            mushaf.addView(openMushaf,openMushafLp);
             LinearLayout.LayoutParams mushafLp=lp(-1,-2);
-            mushafLp.bottomMargin=10;
+            mushafLp.topMargin=8; mushafLp.bottomMargin=12;
             home.addView(mushaf,mushafLp);
 
             LinearLayout duo=row();
             duo.setGravity(Gravity.TOP);
             LinearLayout reciters=column();
             reciters.setGravity(Gravity.CENTER);
-            reciters.setPadding(8,10,8,10);
-            reciters.setBackground(shape(0xff20382c,18,0xffb99a59));
-            reciters.addView(text("♫",26,gold,true),lp(-1,34));
-            reciters.addView(text("القراء",17,cream,true),lp(-1,28));
-            reciters.addView(text("تلاوات القرآن",11,muted,false),lp(-1,28));
-            reciters.addView(button("مكتبة القراء",()->{tab="القراء";showApp();}),lp(-1,42));
+            reciters.setPadding(8,12,8,12);
+            reciters.setBackground(shape(0xff172e24,20,0xffa98d50));
+            TextView reciterIcon=text("♫",30,gold,true);
+            reciterIcon.setBackground(shape(0xff10231b,40,0xff685b39));
+            reciters.addView(reciterIcon,lp(52,52));
+            reciters.addView(text("مكتبة القراء",16,cream,true),lp(-1,32));
+            reciters.addView(text("تلاوات قرآنية",11,muted,false),lp(-1,28));
+            reciters.addView(button("استمع الآن",()->{tab="القراء";showApp();}),lp(-1,42));
 
             LinearLayout adhkar=column();
             adhkar.setGravity(Gravity.CENTER);
-            adhkar.setPadding(8,10,8,10);
-            adhkar.setBackground(shape(0xff20382c,18,0xffb99a59));
-            adhkar.addView(text("۞",26,gold,true),lp(-1,34));
-            adhkar.addView(text("الأذكار",17,cream,true),lp(-1,28));
-            adhkar.addView(text("الصباح والمساء",11,muted,false),lp(-1,28));
-            adhkar.addView(button("افتح الأذكار",()->{tab="الأذكار";showApp();}),lp(-1,42));
+            adhkar.setPadding(8,12,8,12);
+            adhkar.setBackground(shape(0xff172e24,20,0xffa98d50));
+            TextView adhkarIcon=text("۞",30,gold,true);
+            adhkarIcon.setBackground(shape(0xff10231b,40,0xff685b39));
+            adhkar.addView(adhkarIcon,lp(52,52));
+            adhkar.addView(text("الأذكار",16,cream,true),lp(-1,32));
+            adhkar.addView(text("ذكرٌ ودعاء",11,muted,false),lp(-1,28));
+            adhkar.addView(button("تصفّح الأذكار",()->{tab="الأذكار";showApp();}),lp(-1,42));
 
-            LinearLayout.LayoutParams half=new LinearLayout.LayoutParams(0,-2,1);
             duo.addView(reciters,new LinearLayout.LayoutParams(0,-2,1));
-            LinearLayout.LayoutParams gap=lp(10,1);
-            duo.addView(new View(this),gap);
+            View cardGap=new View(this);
+            duo.addView(cardGap,lp(10,1));
             duo.addView(adhkar,new LinearLayout.LayoutParams(0,-2,1));
             home.addView(duo);
 
             TextView footer=text("اللَّهُمَّ اجْعَلِ القُرْآنَ رَبِيعَ قُلُوبِنَا",13,0xffffd987,true);
-            LinearLayout.LayoutParams footerLp=lp(-1,40);
+            LinearLayout.LayoutParams footerLp=lp(-1,42);
             footerLp.topMargin=8;
             home.addView(footer,footerLp);
-
-            homeScroll.addView(home,new ScrollView.LayoutParams(-1,-2));
+            homeScroll.addView(home,new ScrollView.LayoutParams(-1,-1));
             body.addView(homeScroll,new LinearLayout.LayoutParams(-1,-1));
             return;
         }
