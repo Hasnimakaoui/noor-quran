@@ -286,6 +286,7 @@ public class MainActivity extends Activity {
             body.addView(reciterScroll,new LinearLayout.LayoutParams(-1,-1)); body=reciterContent;
             if(reciterScreenStage==0) {
                 section("مكتبة القرّاء");
+                reciterContent.addView(button("← العودة إلى الرئيسية",()->{tab="الرئيسية";reciterScreenStage=0;showApp();}),lp(-1,48));
                 LinearLayout entry=column(); entry.setGravity(Gravity.CENTER); entry.setPadding(20,24,20,24);
                 entry.setBackground(shape(0xff142a20,28,0xffc9a75d));
                 TextView icon=text("♫",58,0xffffd36b,true); icon.setGravity(Gravity.CENTER);
@@ -325,7 +326,7 @@ public class MainActivity extends Activity {
                     LinearLayout.LayoutParams pictureLp=lp(66,66); pictureLp.bottomMargin=6; tile.addView(picture,pictureLp);
                     tile.addView(text(surahs[si],15,cream,true),lp(-1,-2));
                     LinearLayout.LayoutParams tileLp=lp(-1,-2); tileLp.bottomMargin=8; reciterContent.addView(tile,tileLp);
-                    tile.setOnClickListener(v->{selectedSurah=chosenSurah;audioStatus=null;playSurah();});
+                    tile.setOnClickListener(v->{selectedSurah=chosenSurah;playSurah();});
                 }
             }        } else if(tab.equals("الأذكار")) {
             ScrollView adhkarScroll = new ScrollView(this);
