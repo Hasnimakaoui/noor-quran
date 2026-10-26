@@ -103,44 +103,70 @@ public class MainActivity extends Activity {
         }
 
         if(tab.equals("المصحف")) {
-            // Keep the whole Mushaf screen in one vertical scroll container so the
-            // page image and recitation controls never compete for the same height.
-            ScrollView tabScroll = new ScrollView(this);
-            tabScroll.setFillViewport(false);
-            tabScroll.setVerticalScrollBarEnabled(true);
-            LinearLayout mushafContent = column();
-            mushafContent.setPadding(0, 0, 0, 14);
-            tabScroll.addView(mushafContent, new ScrollView.LayoutParams(-1, -2));
-            body.addView(tabScroll, new LinearLayout.LayoutParams(-1, -1));
-            body = mushafContent;
-            LinearLayout hero=column(); hero.setPadding(16,14,16,14); hero.setBackground(shape(0xff172c25,24,0xff3c5947));
-            LinearLayout heroTop=row(); LinearLayout heroTitles=column(); heroTitles.addView(text("المصحف المدني",21,cream,true),lp(-1,32)); heroTitles.addView(text("متابعة وردك اليومي",12,muted,false),lp(-1,22)); heroTop.addView(heroTitles,new LinearLayout.LayoutParams(0,-2,1)); heroTop.addView(text("604\nصفحة",13,gold,true),lp(68,54)); hero.addView(heroTop);
-            View progressTrack=new View(this); progressTrack.setBackground(shape(0xff2d4539,8,0)); LinearLayout.LayoutParams trackLp=lp(-1,5);trackLp.topMargin=12;hero.addView(progressTrack,trackLp);
-            TextView progressText=text("الصفحة "+page+" من 604  •  "+Math.round(page*100.0/604)+"٪",12,gold,true); progressText.setGravity(Gravity.RIGHT|Gravity.CENTER_VERTICAL);hero.addView(progressText,lp(-1,28)); card(hero);
-            LinearLayout actions=row(); actions.setPadding(0,0,0,8);
-            actions.addView(button("‹  الصفحة السابقة",()->changePage(-1)),new LinearLayout.LayoutParams(0,-2,1));
-            actions.addView(button("الصفحة التالية  ›",()->changePage(1)),new LinearLayout.LayoutParams(0,-2,1)); card(actions);
-            LinearLayout marks=row();
-            marks.addView(button("☆  حفظ العلامة",()->{prefs.edit().putInt("bookmark",page).apply();Toast.makeText(this,"تم حفظ العلامة عند الصفحة "+page,Toast.LENGTH_SHORT).show();}),new LinearLayout.LayoutParams(0,-2,1));
-            marks.addView(button("العودة للعلامة",()->{page=prefs.getInt("bookmark",1);prefs.edit().putInt("page",page).apply();renderTab();}),new LinearLayout.LayoutParams(0,-2,1)); card(marks);
-            TextView pageLabel=text("صفحة "+page,14,gold,true); pageLabel.setGravity(Gravity.CENTER); card(pageLabel);
+            // Reading-only Mushaf: maximize the page and support finger-swipe page turning.
+            LinearLayout reading=column();
+            reading.setPadding(0,0,0,4);
+            reading.setBackgroundColor(0xff091610);
+            body.addView(reading,new LinearLayout.LayoutParams(-1,-1));
+
+            LinearLayout readingHeader=row();
+            readingHeader.setPadding(12,4,12,4);
+            readingHeader.setBackground(shape(0xff132820,16,0xffb99a59));
+            LinearLayout heading=column();
+            heading.addView(text("المصحف الشريف",18,cream,true),lp(-1,30));
+            heading.addView(text("قراءة فقط • المصحف المدني",11,muted,false),lp(-1,20));
+            readingHeader.addView(heading,new LinearLayout.LayoutParams(0,-2,1));
+            TextView pageBadge=text(page+" / 604",14,gold,true);
+            pageBadge.setBackground(shape(0xff20382c,14,0xff9c824c));
+            readingHeader.addView(pageBadge,lp(86,42));
+            reading.addView(readingHeader,lp(-1,-2));
+
             ImageView mushafPage=new ImageView(this);
             mushafPage.setAdjustViewBounds(false);
             mushafPage.setScaleType(ImageView.ScaleType.FIT_CENTER);
-            mushafPage.setBackground(shape(cream,8,gold));
-            mushafPage.setPadding(4,4,4,4);
+            mushafPage.setBackground(shape(0xfff8f0d9,8,0xffb99a59));
+            mushafPage.setPadding(2,2,2,2);
+            mushafPage.setContentDescription("صفحة المصحف "+page+"، اسحب يمينًا أو يسارًا لتقليب الصفحات");
             try(java.io.InputStream imageStream=getAssets().open(String.format(Locale.US,"mushaf/%03d.jpg",page))){
                 mushafPage.setImageDrawable(android.graphics.drawable.Drawable.createFromStream(imageStream,null));
-                LinearLayout.LayoutParams imageParams=lp(-1,620);
-                imageParams.bottomMargin=10;
-                body.addView(mushafPage,imageParams);
             } catch(Exception imageError) {
-                TextView fallback=text("صورة الصفحة غير متوفرة داخل هذه النسخة.",20,0xff243b2f,false);
-                fallback.setPadding(18,22,18,22);
-                card(fallback);
+                mushafPage.setImageDrawable(null);
+                mushafPage.setBackground(shape(0xfff8f0d9,8,0xffb99a59));
             }
-            TextView sourceNote=text("صفحات المصحف المدني الأصلية محفوظة داخل التطبيق وتعمل دون إنترنت.",11,gold,false); body.addView(sourceNote,lp(-1,-2));
-} else if(tab.equals("القراء")) {
+            LinearLayout.LayoutParams pageImageLp=new LinearLayout.LayoutParams(-1,0,1);
+            pageImageLp.topMargin=6; pageImageLp.bottomMargin=6;
+            reading.addView(mushafPage,pageImageLp);
+
+            mushafPage.setOnTouchListener((v,event)->{
+                if(event.getAction()==MotionEvent.ACTION_DOWN){downX=event.getX();return true;}
+                if(event.getAction()==MotionEvent.ACTION_UP){
+                    float delta=event.getX()-downX;
+                    float threshold=Math.max(55f, getResources().getDisplayMetrics().density*42f);
+                    if(Math.abs(delta)>=threshold){
+                        // In Arabic reading, swipe right goes to the previous page.
+                        changePage(delta>0?-1:1);
+                    } else {
+                        float x=event.getX();
+                        if(x< v.getWidth()*0.28f) changePage(1);
+                        else if(x>v.getWidth()*0.72f) changePage(-1);
+                    }
+                    return true;
+                }
+                return true;
+            });
+
+            LinearLayout pageControls=row();
+            pageControls.setGravity(Gravity.CENTER);
+            pageControls.setPadding(0,2,0,2);
+            TextView previous=button("‹  السابقة",()->changePage(-1));
+            TextView next=button("التالية  ›",()->changePage(1));
+            pageControls.addView(previous,new LinearLayout.LayoutParams(0,-2,1));
+            View controlGap=new View(this); pageControls.addView(controlGap,lp(8,1));
+            pageControls.addView(next,new LinearLayout.LayoutParams(0,-2,1));
+            reading.addView(pageControls,lp(-1,-2));
+            TextView hint=text("اسحب الصفحة بإصبعك للتقليب",10,muted,false);
+            reading.addView(hint,lp(-1,22));
+        } else if(tab.equals("القراء")) {
             ScrollView reciterScroll=new ScrollView(this);
             LinearLayout reciterContent=column(); reciterContent.setPadding(0,0,0,16);
             reciterScroll.addView(reciterContent,new ScrollView.LayoutParams(-1,-2));
