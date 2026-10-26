@@ -34,6 +34,7 @@ public class MainActivity extends Activity {
     private WebView quranWebView;
     private MediaPlayer player;
     private String selectedEdition="";
+    private int reciterScreenStage=0;
     private String selectedReciter="عبد الباسط عبد الصمد — مجوّد";
     private int selectedSurah=1;
     private String selectedDhikrCategory = null;
@@ -278,38 +279,53 @@ public class MainActivity extends Activity {
             reading.addView(hint,lp(-1,22));
         } else if(tab.equals("القراء")) {
             ScrollView reciterScroll=new ScrollView(this);
-            LinearLayout reciterContent=column(); reciterContent.setPadding(0,0,0,16);
+            reciterScroll.setFillViewport(true);
+            LinearLayout reciterContent=column();
+            reciterContent.setPadding(0,4,0,18);
             reciterScroll.addView(reciterContent,new ScrollView.LayoutParams(-1,-2));
             body.addView(reciterScroll,new LinearLayout.LayoutParams(-1,-1)); body=reciterContent;
-            section("مكتبة القرّاء");
-            card(text("اختر القارئ والسورة واستمع إلى التلاوة في شاشة مستقلة عن المصحف.",14,muted,false));
-            section("استمع إلى التلاوة");
-            String[] reciterNames={"عبد الباسط عبد الصمد — مجوّد","أحمد العجمي","عبد الله خلف","محمد اللحيدان"};
-            String[] editions={"عبد الباسط عبد الصمد","أحمد العجمي","عبد الله الخلف","محمد اللحيدان"};
-            Spinner reciterSpinner=new Spinner(this);
-            reciterSpinner.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_spinner_dropdown_item,reciterNames));
-            int initialEdition=0; for(int i=0;i<editions.length;i++) if(editions[i].equals(selectedEdition)) initialEdition=i;
-            reciterSpinner.setSelection(initialEdition);
-            reciterSpinner.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener(){
-                public void onNothingSelected(android.widget.AdapterView<?> parent){}
-                public void onItemSelected(android.widget.AdapterView<?> parent,View view,int position,long id){selectedEdition=editions[position];selectedReciter=reciterNames[position];}
-            });
-            card(reciterSpinner);
-            String[] surahs={"الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الانفطار","المطففين","الانشقاق","البروج","الطارق","الأعلى","الغاشية","الفجر","البلد","الشمس","الليل","الضحى","الشرح","التين","العلق","القدر","البينة","الزلزلة","العاديات","القارعة","التكاثر","العصر","الهمزة","الفيل","قريش","الماعون","الكوثر","الكافرون","النصر","المسد","الإخلاص","الفلق","الناس"};
-            Spinner surahSpinner=new Spinner(this);
-            surahSpinner.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_spinner_dropdown_item,surahs));
-            surahSpinner.setSelection(Math.max(0,Math.min(113,selectedSurah-1)));
-            surahSpinner.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener(){
-                public void onNothingSelected(android.widget.AdapterView<?> parent){}
-                public void onItemSelected(android.widget.AdapterView<?> parent,View view,int position,long id){selectedSurah=position+1;}
-            });
-            card(surahSpinner);
-            audioStatus=text("اختر القارئ والسورة ثم اضغط تشغيل",13,muted,false); card(audioStatus);
-            LinearLayout audioButtons=row();
-            audioButtons.addView(button("▶ تشغيل السورة",()->playSurah()),new LinearLayout.LayoutParams(0,-2,1));
-            audioButtons.addView(button("■ إيقاف",()->stopAudio()),new LinearLayout.LayoutParams(0,-2,1));
-            card(audioButtons);
-        } else if(tab.equals("الأذكار")) {
+            if(reciterScreenStage==0) {
+                section("مكتبة القرّاء");
+                LinearLayout entry=column(); entry.setGravity(Gravity.CENTER); entry.setPadding(20,24,20,24);
+                entry.setBackground(shape(0xff142a20,28,0xffc9a75d));
+                TextView icon=text("♫",58,0xffffd36b,true); icon.setGravity(Gravity.CENTER);
+                icon.setBackground(shape(0xff203c2e,100,0xffc9a75d));
+                LinearLayout.LayoutParams iconLp=lp(144,144); iconLp.bottomMargin=18; entry.addView(icon,iconLp);
+                entry.addView(text("اختر القارئ",23,cream,true),lp(-1,-2));
+                entry.addView(text("اضغط هنا لاختيار صوت القارئ",14,muted,false),lp(-1,-2));
+                LinearLayout.LayoutParams entryLp=lp(-1,-2); entryLp.topMargin=18; reciterContent.addView(entry,entryLp);
+                entry.setOnClickListener(v->{reciterScreenStage=1;renderTab();});
+            } else if(reciterScreenStage==1) {
+                section("اختر القارئ");
+                reciterContent.addView(button("← رجوع",()->{reciterScreenStage=0;renderTab();}),lp(-1,48));
+                String[] reciterNames={"عبد الباسط عبد الصمد — مجوّد","أحمد العجمي","عبد الله خلف","محمد اللحيدان"};
+                String[] editions={"عبد الباسط عبد الصمد","أحمد العجمي","عبد الله الخلف","محمد اللحيدان"};
+                String[] symbols={"۞","♪","♫","❖"};
+                for(int ri=0;ri<reciterNames.length;ri++){
+                    final int chosen=ri;
+                    LinearLayout item=column(); item.setGravity(Gravity.CENTER); item.setPadding(16,16,16,16);
+                    item.setBackground(shape(0xff172e24,22,0xffa98d50));
+                    TextView portrait=text(symbols[ri],38,gold,true); portrait.setBackground(shape(0xff10231b,70,0xff685b39));
+                    LinearLayout.LayoutParams portraitLp=lp(84,84); portraitLp.bottomMargin=8; item.addView(portrait,portraitLp);
+                    item.addView(text(reciterNames[ri],18,cream,true),lp(-1,-2));
+                    LinearLayout.LayoutParams itemLp=lp(-1,-2); itemLp.bottomMargin=12; reciterContent.addView(item,itemLp);
+                    item.setOnClickListener(v->{selectedEdition=editions[chosen];selectedReciter=reciterNames[chosen];reciterScreenStage=2;renderTab();});
+                }
+            } else {
+                section("اختر السورة للاستماع");
+                reciterContent.addView(button("← تغيير القارئ: "+selectedReciter,()->{reciterScreenStage=1;renderTab();}),lp(-1,-2));
+                String[] surahs={"الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الانفطار","المطففين","الانشقاق","البروج","الطارق","الأعلى","الغاشية","الفجر","البلد","الشمس","الليل","الضحى","الشرح","التين","العلق","القدر","البينة","الزلزلة","العاديات","القارعة","التكاثر","العصر","الهمزة","الفيل","قريش","الماعون","الكوثر","الكافرون","النصر","المسد","الإخلاص","الفلق","الناس"};
+                for(int si=0;si<surahs.length;si++){
+                    final int chosenSurah=si+1;
+                    LinearLayout tile=column(); tile.setGravity(Gravity.CENTER); tile.setPadding(10,14,10,14);
+                    tile.setBackground(shape(0xff142a20,18,0xff526c54));
+                    TextView picture=text("۞",28,0xffffd36b,true); picture.setBackground(shape(0xff203c2e,50,0xffa98d50));
+                    LinearLayout.LayoutParams pictureLp=lp(66,66); pictureLp.bottomMargin=6; tile.addView(picture,pictureLp);
+                    tile.addView(text(surahs[si],15,cream,true),lp(-1,-2));
+                    LinearLayout.LayoutParams tileLp=lp(-1,-2); tileLp.bottomMargin=8; reciterContent.addView(tile,tileLp);
+                    tile.setOnClickListener(v->{selectedSurah=chosenSurah;audioStatus=null;playSurah();});
+                }
+            }        } else if(tab.equals("الأذكار")) {
             ScrollView adhkarScroll = new ScrollView(this);
             LinearLayout adhkarContent = column();
             adhkarContent.setPadding(0,0,0,16);
