@@ -57,11 +57,11 @@ public class MainActivity extends Activity {
         }
     }
     private void showApp() {
-        root=column(); root.setBackgroundColor(bg); root.setPadding(14,10,14,8);
-        LinearLayout header=row(); header.setPadding(14,8,14,8); header.setBackground(shape(0xff132820,24,0xffb99a59));
-        LinearLayout emblem=column(); TextView brand=text("۞",30,gold,true); brand.setBackground(shape(0xff10231c,44,0xffc9a75d)); emblem.addView(brand,lp(46,46)); header.addView(emblem,lp(44,48));
-        LinearLayout title=column(); title.setGravity(Gravity.CENTER_VERTICAL); title.addView(text("نُورُ القُرآن",22,cream,true),lp(-1,30)); title.addView(text("المصحف • التلاوة • الأذكار",11,muted,false),lp(-1,20)); header.addView(title,new LinearLayout.LayoutParams(0,48,1));
-        TextView moon=text("☾",23,gold,true); moon.setBackground(shape(0xff263d34,40,0)); header.addView(moon,lp(42,42)); root.addView(header);
+        root=column(); root.setBackgroundColor(bg); root.setPadding(12,10,12,8);
+        LinearLayout header=row(); header.setPadding(8,8,8,8); header.setGravity(Gravity.CENTER_VERTICAL); header.setBackground(shape(0xff132820,22,0xffb99a59));
+        LinearLayout emblem=column(); emblem.setGravity(Gravity.CENTER); TextView brand=text("۞",26,gold,true); brand.setBackground(shape(0xff10231c,40,0xffc9a75d)); emblem.addView(brand,lp(40,40)); header.addView(emblem,lp(42,42));
+        LinearLayout title=column(); title.setGravity(Gravity.CENTER_VERTICAL); title.setMinimumWidth(0); TextView appTitle=text("نُورُ القُرآن",20,cream,true); appTitle.setSingleLine(true); appTitle.setMaxLines(1); appTitle.setEllipsize(android.text.TextUtils.TruncateAt.END); title.addView(appTitle,lp(-1,28)); TextView appSubtitle=text("المصحف • التلاوة • الأذكار",10,muted,false); appSubtitle.setSingleLine(true); appSubtitle.setEllipsize(android.text.TextUtils.TruncateAt.END); title.addView(appSubtitle,lp(-1,18)); LinearLayout.LayoutParams titleParams=new LinearLayout.LayoutParams(0,46,1); titleParams.leftMargin=6; titleParams.rightMargin=6; header.addView(title,titleParams);
+        TextView moon=text("☾",21,gold,true); moon.setBackground(shape(0xff263d34,36,0)); header.addView(moon,lp(36,36)); root.addView(header);
         View line=new View(this); line.setBackgroundColor(0xff263f35); LinearLayout.LayoutParams lineParams=lp(-1,1);lineParams.topMargin=9;root.addView(line,lineParams);
         body=column(); LinearLayout.LayoutParams bp=new LinearLayout.LayoutParams(-1,0,1); bp.topMargin=8; root.addView(body,bp);
         nav=row(); nav.setBackground(shape(panel,24,0xff344e43)); nav.setPadding(3,4,3,4);
@@ -115,7 +115,7 @@ public class MainActivity extends Activity {
             mushaf.setBackground(shape(0xff203c2e,22,0xffd0ad60));
             LinearLayout mushafHead=row();
             mushafHead.setGravity(Gravity.CENTER);
-            TextView mushafIcon=text("▤",34,gold,true);
+            TextView mushafIcon=text("▤",30,gold,true);
             mushafIcon.setBackground(shape(0xff14291f,44,0xff8d7545));
             mushafHead.addView(mushafIcon,lp(54,54));
             LinearLayout mushafTitle=column();
@@ -140,23 +140,23 @@ public class MainActivity extends Activity {
             reciters.setGravity(Gravity.CENTER);
             reciters.setPadding(8,12,8,12);
             reciters.setBackground(shape(0xff172e24,20,0xffa98d50));
-            TextView reciterIcon=text("♫",30,gold,true);
+            TextView reciterIcon=text("♫",26,gold,true);
             reciterIcon.setBackground(shape(0xff10231b,40,0xff685b39));
             reciters.addView(reciterIcon,lp(52,52));
             reciters.addView(text("مكتبة القراء",16,cream,true),lp(-1,32));
             reciters.addView(text("تلاوات قرآنية",11,muted,false),lp(-1,28));
-            reciters.addView(button("استمع الآن",()->{tab="القراء";showApp();}),lp(-1,42));
+            TextView reciterButton=button("استمع الآن",()->{tab="القراء";showApp();}); reciterButton.setTextSize(12); reciterButton.setSingleLine(true); reciterButton.setPadding(4,8,4,8); reciters.addView(reciterButton,lp(-1,40));
 
             LinearLayout adhkar=column();
             adhkar.setGravity(Gravity.CENTER);
             adhkar.setPadding(8,12,8,12);
             adhkar.setBackground(shape(0xff172e24,20,0xffa98d50));
-            TextView adhkarIcon=text("۞",30,gold,true);
+            TextView adhkarIcon=text("۞",26,gold,true);
             adhkarIcon.setBackground(shape(0xff10231b,40,0xff685b39));
             adhkar.addView(adhkarIcon,lp(52,52));
             adhkar.addView(text("الأذكار",16,cream,true),lp(-1,32));
             adhkar.addView(text("ذكرٌ ودعاء",11,muted,false),lp(-1,28));
-            adhkar.addView(button("تصفّح الأذكار",()->{tab="الأذكار";showApp();}),lp(-1,42));
+            TextView adhkarButton=button("تصفّح الأذكار",()->{tab="الأذكار";showApp();}); adhkarButton.setTextSize(12); adhkarButton.setSingleLine(true); adhkarButton.setPadding(4,8,4,8); adhkar.addView(adhkarButton,lp(-1,40));
 
             duo.addView(reciters,new LinearLayout.LayoutParams(0,-2,1));
             View cardGap=new View(this);
