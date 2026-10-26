@@ -44,7 +44,17 @@ public class MainActivity extends Activity {
     private LinearLayout row() { LinearLayout l=new LinearLayout(this); l.setOrientation(LinearLayout.HORIZONTAL); l.setGravity(Gravity.CENTER_VERTICAL); return l; }
     private LinearLayout.LayoutParams lp(int w,int h) { return new LinearLayout.LayoutParams(w,h); }
     private TextView button(String s,Runnable action) { TextView v=text(s,15,cream,true); v.setBackground(shape(panel,22,gold)); v.setPadding(14,12,14,12); v.setOnClickListener(x->action.run()); return v; }
-\n    private class OrnamentView extends View {\n        private final android.graphics.Paint p = new android.graphics.Paint(3);\n        public OrnamentView(android.content.Context context){super(context);setLayerType(View.LAYER_TYPE_SOFTWARE,null);}\n        @Override protected void onDraw(android.graphics.Canvas canvas){\n            super.onDraw(canvas); float w=getWidth(), h=getHeight(); p.setStyle(android.graphics.Paint.Style.STROKE); p.setStrokeWidth(1.3f); p.setColor(0x99d8b96f);\n            float cy=h/2f; float step=Math.max(22f,Math.min(34f,h*0.8f));\n            for(float x=step/2;x<w;x+=step){canvas.drawCircle(x,cy,step*0.28f,p); canvas.drawRect(x-step*0.2f,cy-step*0.2f,x+step*0.2f,cy+step*0.2f,p); canvas.drawCircle(x,cy,step*0.46f,p);}\n            p.setStyle(android.graphics.Paint.Style.FILL); p.setColor(0xffd8b96f); canvas.drawCircle(step/2,cy,2.5f,p); canvas.drawCircle(w-step/2,cy,2.5f,p);\n        }\n    }\n\n    private void showApp() {
+
+    private class OrnamentView extends View {
+        private final android.graphics.Paint p = new android.graphics.Paint(3);
+        public OrnamentView(android.content.Context context){super(context);setLayerType(View.LAYER_TYPE_SOFTWARE,null);}
+        @Override protected void onDraw(android.graphics.Canvas canvas){
+            super.onDraw(canvas); float w=getWidth(), h=getHeight(); p.setStyle(android.graphics.Paint.Style.STROKE); p.setStrokeWidth(1.3f); p.setColor(0x99d8b96f);
+            float cy=h/2f; float step=Math.max(22f,Math.min(34f,h*0.8f));
+            for(float x=step/2;x<w;x+=step){canvas.drawCircle(x,cy,step*0.28f,p); canvas.drawRect(x-step*0.2f,cy-step*0.2f,x+step*0.2f,cy+step*0.2f,p); canvas.drawCircle(x,cy,step*0.46f,p);}
+            p.setStyle(android.graphics.Paint.Style.FILL); p.setColor(0xffd8b96f); canvas.drawCircle(step/2,cy,2.5f,p); canvas.drawCircle(w-step/2,cy,2.5f,p);
+        }
+    }\n    private void showApp() {
         root=column(); root.setBackgroundColor(bg); root.setPadding(14,10,14,8);
         LinearLayout header=row(); header.setPadding(14,8,14,8); header.setBackground(shape(0xff132820,24,0xffb99a59));
         LinearLayout emblem=column(); TextView brand=text("۞",30,gold,true); brand.setBackground(shape(0xff10231c,44,0xffc9a75d)); emblem.addView(brand,lp(46,46)); header.addView(emblem,lp(44,48));
