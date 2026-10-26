@@ -50,9 +50,11 @@ public class MainActivity extends Activity {
             LinearLayout resume=column(); resume.addView(text("المصحف المدني",17,gold,true)); resume.addView(text("صفحتك المحفوظة: "+page+" من 604",14,cream,false));
             LinearLayout actions=row(); actions.addView(button("السابق",()->changePage(-1)),new LinearLayout.LayoutParams(0,-2,1)); actions.addView(button("التالي",()->changePage(1)),new LinearLayout.LayoutParams(0,-2,1)); resume.addView(actions);
             resume.addView(text("معاينة القارئ والصفحة",12,muted,false)); card(resume);
-            TextView pageCard=text("﴿ بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ ﴾\n\nاختر صفحة المصحف للمتابعة\n\n"+page,22,0xff344c3c,true); pageCard.setBackground(shape(cream,14,gold)); pageCard.setPadding(12,22,12,22);
-            card(pageCard);
-            pageCard.setOnTouchListener((v,e)->{if(e.getAction()==MotionEvent.ACTION_DOWN){downX=e.getX();return true;} if(e.getAction()==MotionEvent.ACTION_UP){float dx=e.getX()-downX;if(Math.abs(dx)>45)changePage(dx<0?1:-1);return true;}return true;});
+            TextView pageLabel=text("صفحة المصحف المدني رقم "+page,15,gold,true); card(pageLabel);
+            quranWebView=new WebView(this); quranWebView.getSettings().setJavaScriptEnabled(true); quranWebView.getSettings().setDomStorageEnabled(true); quranWebView.setWebViewClient(new WebViewClient()); quranWebView.setBackgroundColor(cream);
+            quranWebView.loadUrl("https://quran.com/page/"+page);
+            LinearLayout.LayoutParams webParams=new LinearLayout.LayoutParams(-1,0,1); webParams.bottomMargin=10; body.addView(quranWebView,webParams);
+            TextView sourceNote=text("يُعرض محتوى المصحف عبر الإنترنت. حفظ الصفحات للعمل دون إنترنت لم يُفعّل بعد.",11,muted,false); body.addView(sourceNote,lp(-1,-2));
             section("القرّاء");
             String[] reciters={"عبد الله خلف","أحمد العجمي","عبد الباسط عبد الصمد","محمد اللحيدان"};
             for(String r:reciters) { TextView item=text("♫    "+r+"     ›",15,cream,true); item.setGravity(Gravity.RIGHT|Gravity.CENTER_VERTICAL); item.setBackground(shape(panel,16,0)); LinearLayout.LayoutParams p=lp(-1,50);p.bottomMargin=7;body.addView(item,p); item.setOnClickListener(v->startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://quran.com/reciters")))); }
