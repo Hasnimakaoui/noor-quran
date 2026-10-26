@@ -6,7 +6,7 @@ on:
     branches: [ main ]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -53,11 +53,11 @@ jobs:
               total_before += os.path.getsize(source)
               with Image.open(source) as im:
                   im = im.convert("RGB")
-                  # Smaller offline pages reduce the APK size while remaining suitable for phone reading.
-                  if im.width > 1200:
-                      h = round(im.height * 1200 / im.width)
-                      im = im.resize((1200, h), Image.Resampling.LANCZOS)
-                  im.save(target, "JPEG", quality=72, optimize=True, progressive=False)
+                  # Keep the full 604-page Mushaf offline, but use phone-friendly image sizes.
+                  if im.width > 900:
+                      h = round(im.height * 900 / im.width)
+                      im = im.resize((900, h), Image.Resampling.LANCZOS)
+                  im.save(target, "JPEG", quality=58, optimize=True, progressive=False)
               total_after += os.path.getsize(target)
           if missing:
               raise SystemExit(f"Missing Mushaf pages ({len(missing)}): {missing[:10]}")
@@ -77,9 +77,20 @@ jobs:
           unzip -t verified/Noor-Quran.apk
           ls -lh verified/Noor-Quran.apk
 
-      - name: Upload APK
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: Noor-Quran-APK
           path: verified/Noor-Quran.apk
           if-no-files-found: error
+          compression-level: 0
+
+      - name: Publish direct APK download
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: noor-quran-latest
+          name: Noor Quran - Latest APK
+          body: "Latest standalone Noor Quran APK. Download Noor-Quran.apk below."
+          files: verified/Noor-Quran.apk
+          overwrite_files: true
+          make_latest: true
