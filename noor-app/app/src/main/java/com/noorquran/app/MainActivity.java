@@ -90,7 +90,7 @@ public class MainActivity extends Activity {
             return;
         }
 
-        if(tab.equals("القرآن")) {
+        if(tab.equals("المصحف")) {
             LinearLayout hero=column(); hero.setPadding(16,14,16,14); hero.setBackground(shape(0xff172c25,24,0xff3c5947));
             LinearLayout heroTop=row(); LinearLayout heroTitles=column(); heroTitles.addView(text("المصحف المدني",21,cream,true),lp(-1,32)); heroTitles.addView(text("متابعة وردك اليومي",12,muted,false),lp(-1,22)); heroTop.addView(heroTitles,new LinearLayout.LayoutParams(0,-2,1)); heroTop.addView(text("604\nصفحة",13,gold,true),lp(68,54)); hero.addView(heroTop);
             View progressTrack=new View(this); progressTrack.setBackground(shape(0xff2d4539,8,0)); LinearLayout.LayoutParams trackLp=lp(-1,5);trackLp.topMargin=12;hero.addView(progressTrack,trackLp);
@@ -158,7 +158,7 @@ public class MainActivity extends Activity {
             card(text("صفحة القراءة الحالية\n"+page+" / 604",22,gold,true));
             card(text("نسبة الصفحات المتقدمة\n"+Math.round(page*100.0/604)+"%",20,cream,true));
             card(text("الصفحة محفوظة تلقائياً على هذا الجهاز.",14,muted,false));
-            body.addView(button("العودة إلى المصحف",()->{tab="القرآن";showApp();}),lp(-1,54));
+            body.addView(button("العودة إلى المصحف",()->{tab="المصحف";showApp();}),lp(-1,54));
         }
     }
 
