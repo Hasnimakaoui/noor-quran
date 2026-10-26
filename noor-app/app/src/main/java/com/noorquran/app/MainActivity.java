@@ -70,15 +70,20 @@ public class MainActivity extends Activity {
             TextView pageLabel=text("صفحة المصحف المدني رقم "+page,15,gold,true); card(pageLabel);
             ScrollView offlineScroll=new ScrollView(this);
             offlineScroll.setFillViewport(true);
-            TextView offlinePage=text(loadOfflinePage(page),25,0xff243b2f,false);
-            offlinePage.setGravity(Gravity.RIGHT|Gravity.TOP);
-            offlinePage.setTextDirection(View.TEXT_DIRECTION_RTL);
-            offlinePage.setLineSpacing(12f,1.15f);
-            offlinePage.setPadding(18,22,18,22);
-            offlinePage.setBackground(shape(cream,12, gold));
-            offlineScroll.addView(offlinePage,new ScrollView.LayoutParams(-1,-2));
+            ImageView mushafPage=new ImageView(this);
+            mushafPage.setAdjustViewBounds(true);
+            mushafPage.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            mushafPage.setBackground(shape(cream,8,gold));
+            try(java.io.InputStream imageStream=getAssets().open(String.format(Locale.US,"mushaf/%03d.jpg",page))){
+                mushafPage.setImageDrawable(android.graphics.drawable.Drawable.createFromStream(imageStream,null));
+            } catch(Exception imageError) {
+                TextView fallback=text("صورة الصفحة غير متوفرة داخل هذه النسخة.",20,0xff243b2f,false);
+                fallback.setPadding(18,22,18,22);
+                offlineScroll.addView(fallback,new ScrollView.LayoutParams(-1,-2));
+            }
+            if(mushafPage.getDrawable()!=null) offlineScroll.addView(mushafPage,new ScrollView.LayoutParams(-1,-2));
             LinearLayout.LayoutParams webParams=new LinearLayout.LayoutParams(-1,0,1); webParams.bottomMargin=10; body.addView(offlineScroll,webParams);
-            TextView sourceNote=text("القراءة النصية محفوظة داخل التطبيق وتعمل دون إنترنت.",11,gold,false); body.addView(sourceNote,lp(-1,-2));
+            TextView sourceNote=text("صفحات المصحف المدني الأصلية محفوظة داخل التطبيق وتعمل دون إنترنت.",11,gold,false); body.addView(sourceNote,lp(-1,-2));
             section("استمع إلى التلاوة");
             String[] reciterNames={"عبد الباسط عبد الصمد — مجوّد","أحمد العجمي","عبد الله خلف","محمد اللحيدان"};
             String[] editions={"عبد الباسط عبد الصمد","أحمد العجمي","عبد الله الخلف","محمد اللحيدان"};
@@ -123,31 +128,6 @@ public class MainActivity extends Activity {
         }
     }
 
-    private String loadOfflinePage(int pageNumber) {
-        StringBuilder result=new StringBuilder();
-        try {
-            StringBuilder raw=new StringBuilder();
-            try(BufferedReader reader=new BufferedReader(new InputStreamReader(getAssets().open("quran_offline.json"),"UTF-8"))){
-                String line; while((line=reader.readLine())!=null) raw.append(line);
-            }
-            JSONObject rootJson=new JSONObject(raw.toString());
-            JSONObject data=rootJson.optJSONObject("data");
-            JSONArray surahs=data==null?null:data.optJSONArray("surahs");
-            if(surahs!=null) for(int s=0;s<surahs.length();s++){
-                JSONObject surah=surahs.optJSONObject(s);
-                JSONArray ayahs=surah==null?null:surah.optJSONArray("ayahs");
-                if(ayahs==null) continue;
-                for(int a=0;a<ayahs.length();a++){
-                    JSONObject ayah=ayahs.optJSONObject(a);
-                    if(ayah!=null&&ayah.optInt("page",-1)==pageNumber){
-                        if(result.length()==0) result.append("سورة ").append(surah.optString("name","")).append("\n\n");
-                        result.append(ayah.optString("text","")).append(" ﴿").append(ayah.optInt("numberInSurah",0)).append("﴾  ");
-                    }
-                }
-            }
-        } catch(Exception ignored) { return "تعذر فتح ملف القرآن المضمّن. يلزم إعادة بناء التطبيق بعد إضافة ملف المصحف."; }
-        return result.length()==0?"لا توجد آيات مسجلة لهذه الصفحة في الملف المحلي.":result.toString();
-    }
     private void playSurah() {
         stopAudio();
         if(audioStatus!=null) audioStatus.setText("جارٍ البحث عن تلاوة "+selectedReciter+"...");
