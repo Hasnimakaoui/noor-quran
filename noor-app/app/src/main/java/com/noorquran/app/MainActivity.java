@@ -25,7 +25,7 @@ import java.io.InputStreamReader;
 import java.util.Locale;
 
 public class MainActivity extends Activity {
-    private final int bg = Color.rgb(12, 24, 22), panel = Color.rgb(23, 43, 37), gold = Color.rgb(211, 176, 104), cream = Color.rgb(246, 239, 220), muted = Color.rgb(174, 190, 175);
+    private final int bg = Color.rgb(8, 17, 16), panel = Color.rgb(17, 34, 30), gold = Color.rgb(220, 183, 105), cream = Color.rgb(249, 245, 232), muted = Color.rgb(153, 174, 163);
     private LinearLayout root, body, nav;
     private SharedPreferences prefs;
     private int page = 1, dhikrCount = 0;
@@ -45,9 +45,12 @@ public class MainActivity extends Activity {
     private LinearLayout.LayoutParams lp(int w,int h) { return new LinearLayout.LayoutParams(w,h); }
     private TextView button(String s,Runnable action) { TextView v=text(s,15,cream,true); v.setBackground(shape(panel,22,gold)); v.setPadding(14,12,14,12); v.setOnClickListener(x->action.run()); return v; }
     private void showApp() {
-        root=column(); root.setBackgroundColor(bg); root.setPadding(16,12,16,8);
-        LinearLayout header=row(); TextView brand=text("۞",30,gold,true); header.addView(brand,lp(48,54)); LinearLayout title=column(); title.addView(text("نور القرآن",23,cream,true),lp(-1,32)); title.addView(text("رفيقك اليومي مع كتاب الله",12,muted,false),lp(-1,22)); header.addView(title,new LinearLayout.LayoutParams(0,54,1)); header.addView(text("☾",26,gold,true),lp(42,54)); root.addView(header);
-        View line=new View(this); line.setBackgroundColor(0xff3c594b); root.addView(line,lp(-1,1));
+        root=column(); root.setBackgroundColor(bg); root.setPadding(14,10,14,8);
+        LinearLayout header=row(); header.setPadding(14,8,14,8); header.setBackground(shape(panel,24,0xff344e43));
+        LinearLayout emblem=column(); TextView brand=text("۞",28,gold,true); emblem.addView(brand,lp(44,44)); header.addView(emblem,lp(44,48));
+        LinearLayout title=column(); title.setGravity(Gravity.CENTER_VERTICAL); title.addView(text("نُورُ القُرآن",22,cream,true),lp(-1,30)); title.addView(text("المصحف • التلاوة • الأذكار",11,muted,false),lp(-1,20)); header.addView(title,new LinearLayout.LayoutParams(0,48,1));
+        TextView moon=text("☾",23,gold,true); moon.setBackground(shape(0xff263d34,40,0)); header.addView(moon,lp(42,42)); root.addView(header);
+        View line=new View(this); line.setBackgroundColor(0xff263f35); LinearLayout.LayoutParams lineParams=lp(-1,1);lineParams.topMargin=9;root.addView(line,lineParams);
         body=column(); LinearLayout.LayoutParams bp=new LinearLayout.LayoutParams(-1,0,1); bp.topMargin=8; root.addView(body,bp);
         nav=row(); nav.setBackground(shape(panel,24,0)); nav.setPadding(3,4,3,4);
         String[] labels={"القرآن","الأذكار","التسبيح","إنجازي"};
@@ -59,15 +62,17 @@ public class MainActivity extends Activity {
     private void renderTab() {
         body.removeAllViews();
         if(tab.equals("القرآن")) {
-            section("تابع تلاوتك");
-            LinearLayout resume=column(); resume.addView(text("المصحف المدني",17,gold,true)); resume.addView(text("صفحتك المحفوظة: "+page+" من 604",14,cream,false));
-            LinearLayout actions=row(); actions.addView(button("السابق",()->changePage(-1)),new LinearLayout.LayoutParams(0,-2,1)); actions.addView(button("التالي",()->changePage(1)),new LinearLayout.LayoutParams(0,-2,1)); resume.addView(actions);
+            LinearLayout hero=column(); hero.setPadding(16,14,16,14); hero.setBackground(shape(0xff172c25,24,0xff3c5947));
+            LinearLayout heroTop=row(); LinearLayout heroTitles=column(); heroTitles.addView(text("المصحف المدني",21,cream,true),lp(-1,32)); heroTitles.addView(text("متابعة وردك اليومي",12,muted,false),lp(-1,22)); heroTop.addView(heroTitles,new LinearLayout.LayoutParams(0,-2,1)); heroTop.addView(text("604\nصفحة",13,gold,true),lp(68,54)); hero.addView(heroTop);
+            View progressTrack=new View(this); progressTrack.setBackground(shape(0xff2d4539,8,0)); LinearLayout.LayoutParams trackLp=lp(-1,5);trackLp.topMargin=12;hero.addView(progressTrack,trackLp);
+            TextView progressText=text("الصفحة "+page+" من 604  •  "+Math.round(page*100.0/604)+"٪",12,gold,true); progressText.setGravity(Gravity.RIGHT|Gravity.CENTER_VERTICAL);hero.addView(progressText,lp(-1,28)); card(hero);
+            LinearLayout actions=row(); actions.setPadding(0,0,0,8);
+            actions.addView(button("‹  الصفحة السابقة",()->changePage(-1)),new LinearLayout.LayoutParams(0,-2,1));
+            actions.addView(button("الصفحة التالية  ›",()->changePage(1)),new LinearLayout.LayoutParams(0,-2,1)); card(actions);
             LinearLayout marks=row();
-            marks.addView(button("حفظ علامة",()->{prefs.edit().putInt("bookmark",page).apply();Toast.makeText(this,"تم حفظ العلامة عند الصفحة "+page,Toast.LENGTH_SHORT).show();}),new LinearLayout.LayoutParams(0,-2,1));
-            marks.addView(button("الذهاب للعلامة",()->{page=prefs.getInt("bookmark",1);prefs.edit().putInt("page",page).apply();renderTab();}),new LinearLayout.LayoutParams(0,-2,1));
-            resume.addView(marks);
-            resume.addView(text("معاينة القارئ والصفحة",12,muted,false)); card(resume);
-            TextView pageLabel=text("صفحة المصحف المدني رقم "+page,15,gold,true); card(pageLabel);
+            marks.addView(button("☆  حفظ العلامة",()->{prefs.edit().putInt("bookmark",page).apply();Toast.makeText(this,"تم حفظ العلامة عند الصفحة "+page,Toast.LENGTH_SHORT).show();}),new LinearLayout.LayoutParams(0,-2,1));
+            marks.addView(button("العودة للعلامة",()->{page=prefs.getInt("bookmark",1);prefs.edit().putInt("page",page).apply();renderTab();}),new LinearLayout.LayoutParams(0,-2,1)); card(marks);
+            TextView pageLabel=text("صفحة "+page,14,gold,true); pageLabel.setGravity(Gravity.CENTER); card(pageLabel);
             ScrollView offlineScroll=new ScrollView(this);
             offlineScroll.setFillViewport(true);
             ImageView mushafPage=new ImageView(this);
