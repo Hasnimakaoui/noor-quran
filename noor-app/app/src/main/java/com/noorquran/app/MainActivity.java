@@ -14,6 +14,8 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.content.Intent;
 import android.net.Uri;
+import android.media.AudioAttributes;
+import android.media.MediaPlayer;
 import java.util.Locale;
 
 public class MainActivity extends Activity {
@@ -24,6 +26,11 @@ public class MainActivity extends Activity {
     private String tab = "القرآن";
     private float downX;
     private WebView quranWebView;
+    private MediaPlayer player;
+    private String selectedEdition="ar.abdulbasitmujawwad";
+    private String selectedReciter="عبد الباسط عبد الصمد — مجوّد";
+    private int selectedSurah=1;
+    private TextView audioStatus;
     @Override public void onCreate(Bundle b) { super.onCreate(b); prefs=getSharedPreferences("noor",0); page=prefs.getInt("page",1); dhikrCount=prefs.getInt("dhikr",0); showApp(); }
     private GradientDrawable shape(int color, int radius, int stroke) { GradientDrawable d=new GradientDrawable(); d.setColor(color); d.setCornerRadius(radius); if(stroke>0)d.setStroke(1,stroke); return d; }
     private TextView text(String s,int size,int color,boolean bold) { TextView t=new TextView(this); t.setText(s); t.setTextSize(size); t.setTextColor(color); t.setGravity(Gravity.CENTER); t.setTypeface(Typeface.create("sans-serif",bold?Typeface.BOLD:Typeface.NORMAL)); t.setPadding(8,8,8,8); return t; }
@@ -55,10 +62,32 @@ public class MainActivity extends Activity {
             quranWebView.loadUrl("https://quran.com/page/"+page);
             LinearLayout.LayoutParams webParams=new LinearLayout.LayoutParams(-1,0,1); webParams.bottomMargin=10; body.addView(quranWebView,webParams);
             TextView sourceNote=text("يُعرض محتوى المصحف عبر الإنترنت. حفظ الصفحات للعمل دون إنترنت لم يُفعّل بعد.",11,muted,false); body.addView(sourceNote,lp(-1,-2));
-            section("القرّاء");
-            String[] reciters={"عبد الله خلف","أحمد العجمي","عبد الباسط عبد الصمد","محمد اللحيدان"};
-            for(String r:reciters) { TextView item=text("♫    "+r+"     ›",15,cream,true); item.setGravity(Gravity.RIGHT|Gravity.CENTER_VERTICAL); item.setBackground(shape(panel,16,0)); LinearLayout.LayoutParams p=lp(-1,50);p.bottomMargin=7;body.addView(item,p); item.setOnClickListener(v->startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://quran.com/reciters")))); }
-            
+            section("استمع إلى التلاوة");
+            String[] reciterNames={"عبد الباسط عبد الصمد — مجوّد","أحمد العجمي","عبد الله خلف","محمد اللحيدان"};
+            String[] editions={"ar.abdulbasitmujawwad","ar.ajamy","ar.hudhaify","ar.muhammadayyoub"};
+            Spinner reciterSpinner=new Spinner(this);
+            reciterSpinner.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_spinner_dropdown_item,reciterNames));
+            int initialEdition=0; for(int i=0;i<editions.length;i++) if(editions[i].equals(selectedEdition)) initialEdition=i;
+            reciterSpinner.setSelection(initialEdition);
+            reciterSpinner.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener(){
+                public void onNothingSelected(android.widget.AdapterView<?> parent){}
+                public void onItemSelected(android.widget.AdapterView<?> parent,View view,int position,long id){selectedEdition=editions[position];selectedReciter=reciterNames[position];}
+            });
+            card(reciterSpinner);
+            String[] surahs={"الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الانفطار","المطففين","الانشقاق","البروج","الطارق","الأعلى","الغاشية","الفجر","البلد","الشمس","الليل","الضحى","الشرح","التين","العلق","القدر","البينة","الزلزلة","العاديات","القارعة","التكاثر","العصر","الهمزة","الفيل","قريش","الماعون","الكوثر","الكافرون","النصر","المسد","الإخلاص","الفلق","الناس"};
+            Spinner surahSpinner=new Spinner(this);
+            surahSpinner.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_spinner_dropdown_item,surahs));
+            surahSpinner.setSelection(Math.max(0,Math.min(113,selectedSurah-1)));
+            surahSpinner.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener(){
+                public void onNothingSelected(android.widget.AdapterView<?> parent){}
+                public void onItemSelected(android.widget.AdapterView<?> parent,View view,int position,long id){selectedSurah=position+1;}
+            });
+            card(surahSpinner);
+            audioStatus=text("اختر القارئ والسورة ثم اضغط تشغيل",13,muted,false); card(audioStatus);
+            LinearLayout audioButtons=row();
+            audioButtons.addView(button("▶ تشغيل السورة",()->playSurah()),new LinearLayout.LayoutParams(0,-2,1));
+            audioButtons.addView(button("■ إيقاف",()->stopAudio()),new LinearLayout.LayoutParams(0,-2,1));
+            card(audioButtons);
         } else if(tab.equals("الأذكار")) {
             section("أذكار يومية");
             String[] az={"سبحان الله","الحمد لله","لا إله إلا الله","الله أكبر","أستغفر الله"};
@@ -76,5 +105,23 @@ public class MainActivity extends Activity {
             body.addView(button("العودة إلى المصحف",()->{tab="القرآن";showApp();}),lp(-1,54));
         }
     }
+    private void playSurah() {
+        stopAudio();
+        if(audioStatus!=null) audioStatus.setText("جارٍ تحميل التلاوة...");
+        final String url="https://cdn.islamic.network/quran/audio-surah/128/"+selectedEdition+"/"+selectedSurah+".mp3";
+        MediaPlayer mp=new MediaPlayer();
+        try {
+            mp.setAudioAttributes(new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build());
+            mp.setDataSource(url);
+            mp.setOnPreparedListener(p->{player=p;p.start();runOnUiThread(()->{if(audioStatus!=null)audioStatus.setText("يعمل الآن: "+selectedReciter);});});
+            mp.setOnErrorListener((p,what,extra)->{runOnUiThread(()->{if(audioStatus!=null)audioStatus.setText("تعذر تشغيل هذه التلاوة. تحقق من الإنترنت أو اختر قارئاً آخر.");});p.release();return true;});
+            player=mp; mp.prepareAsync();
+        } catch(Exception e) { mp.release(); player=null; if(audioStatus!=null)audioStatus.setText("تعذر تحميل الصوت. تحقق من اتصال الإنترنت."); }
+    }
+    private void stopAudio() {
+        try { if(player!=null){ if(player.isPlaying()) player.stop(); player.release(); player=null; } } catch(Exception ignored) { player=null; }
+        if(audioStatus!=null) audioStatus.setText("تم إيقاف التلاوة");
+    }
+    @Override protected void onDestroy(){stopAudio();super.onDestroy();}
     private void changePage(int delta) { page=Math.max(1,Math.min(604,page+delta)); prefs.edit().putInt("page",page).apply(); renderTab(); }
 }
