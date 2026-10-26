@@ -36,6 +36,7 @@ public class MainActivity extends Activity {
     private String selectedEdition="";
     private String selectedReciter="عبد الباسط عبد الصمد — مجوّد";
     private int selectedSurah=1;
+    private String selectedDhikrCategory = null;
     private TextView audioStatus;
     @Override public void onCreate(Bundle b) { super.onCreate(b); prefs=getSharedPreferences("noor",0); page=prefs.getInt("page",1); dhikrCount=prefs.getInt("dhikr",0); showApp(); }
     private GradientDrawable shape(int color, int radius, int stroke) { GradientDrawable d=new GradientDrawable(); d.setColor(color); d.setCornerRadius(radius); if(stroke>0)d.setStroke(1,stroke); return d; }
@@ -166,9 +167,61 @@ public class MainActivity extends Activity {
             audioButtons.addView(button("■ إيقاف",()->stopAudio()),new LinearLayout.LayoutParams(0,-2,1));
             card(audioButtons);
         } else if(tab.equals("الأذكار")) {
-            section("أذكار يومية");
-            String[] az={"سبحان الله","الحمد لله","لا إله إلا الله","الله أكبر","أستغفر الله"};
-            for(String a:az){ TextView item=text(a+"\nاضغط لعدّ الذكر",19,cream,true); item.setBackground(shape(panel,18,gold)); LinearLayout.LayoutParams p=lp(-1,78);p.bottomMargin=10;body.addView(item,p); item.setOnClickListener(v->{Toast.makeText(this,a,Toast.LENGTH_SHORT).show();}); }
+            ScrollView adhkarScroll = new ScrollView(this);
+            LinearLayout adhkarContent = column();
+            adhkarContent.setPadding(0,0,0,16);
+            adhkarScroll.addView(adhkarContent,new ScrollView.LayoutParams(-1,-2));
+            body.addView(adhkarScroll,new LinearLayout.LayoutParams(-1,-1));
+            body=adhkarContent;
+            JSONObject book=loadHisnBook();
+            if(book==null) {
+                section("تعذر تحميل كتاب حصن المسلم");
+                card(text("تعذر فتح ملف الأذكار داخل التطبيق.",15,muted,false));
+            } else if(selectedDhikrCategory!=null && book.has(selectedDhikrCategory)) {
+                LinearLayout top=row();
+                top.addView(button("→ جميع الأقسام",()->{selectedDhikrCategory=null;renderTab();}),lp(-2,48));
+                top.addView(text(selectedDhikrCategory,18,gold,true),new LinearLayout.LayoutParams(0,-2,1));
+                card(top);
+                JSONObject category=book.optJSONObject(selectedDhikrCategory);
+                JSONArray texts=category==null?null:category.optJSONArray("text");
+                JSONArray notes=category==null?null:category.optJSONArray("footnote");
+                if(texts!=null) for(int i=0;i<texts.length();i++) {
+                    final int itemIndex=i;
+                    LinearLayout item=column(); item.setPadding(14,14,14,14); item.setBackground(shape(0xff142820,18,0xff536b50));
+                    TextView dhikr=text(texts.optString(i),19,cream,false);
+                    dhikr.setGravity(Gravity.RIGHT|Gravity.CENTER_VERTICAL); dhikr.setTextDirection(View.TEXT_DIRECTION_RTL); dhikr.setPadding(6,8,6,12);
+                    item.addView(dhikr,lp(-1,-2));
+                    if(notes!=null && i<notes.length() && !notes.optString(i).trim().isEmpty()) {
+                        TextView note=text("المصدر / الحاشية: "+notes.optString(i),11,muted,false);
+                        note.setGravity(Gravity.RIGHT|Gravity.CENTER_VERTICAL); note.setTextDirection(View.TEXT_DIRECTION_RTL); item.addView(note,lp(-1,-2));
+                    }
+                    LinearLayout.LayoutParams itemLp=lp(-1,-2); itemLp.bottomMargin=12; body.addView(item,itemLp);
+                    item.setOnLongClickListener(v->{android.content.ClipboardManager clipboard=(android.content.ClipboardManager)getSystemService(CLIPBOARD_SERVICE);clipboard.setPrimaryClip(android.content.ClipData.newPlainText("الذكر",texts.optString(itemIndex)));Toast.makeText(this,"تم نسخ الذكر",Toast.LENGTH_SHORT).show();return true;});
+                }
+            } else {
+                section("حصن المسلم كاملًا");
+                card(text("جميع أقسام الكتاب ونصوص الأذكار والحواشي المتاحة محفوظة داخل التطبيق وتعمل دون إنترنت. اضغط مطولًا على الذكر لنسخه.",14,muted,false));
+                EditText search=new EditText(this); search.setSingleLine(true); search.setTextColor(cream); search.setHintTextColor(muted); search.setHint("ابحث عن قسم أو ذكر..."); search.setTextSize(16); search.setPadding(14,10,14,10); search.setBackground(shape(panel,18,gold)); card(search);
+                LinearLayout categories=column(); body.addView(categories,lp(-1,-2));
+                java.util.ArrayList<String> names=new java.util.ArrayList<>();
+                java.util.Iterator<String> keys=book.keys(); while(keys.hasNext()) names.add(keys.next());
+                java.util.Collections.sort(names,(a,b)->{if(a.equals("المقدمة"))return -1;if(b.equals("المقدمة"))return 1;if(a.equals("فضل الذكر"))return -1;if(b.equals("فضل الذكر"))return 1;return a.compareTo(b);});
+                Runnable refreshCategories=()->{
+                    categories.removeAllViews(); String query=search.getText().toString().trim(); int shown=0;
+                    for(String name:names) {
+                        JSONObject obj=book.optJSONObject(name); JSONArray arr=obj==null?null:obj.optJSONArray("text");
+                        boolean match=query.isEmpty()||name.contains(query);
+                        if(!match && arr!=null) for(int j=0;j<arr.length();j++) if(arr.optString(j).contains(query)){match=true;break;}
+                        if(!match) continue;
+                        int total=arr==null?0:arr.length();
+                        TextView cat=button(name+"  •  "+total+" نصوص  ←",()->{selectedDhikrCategory=name;renderTab();});
+                        LinearLayout.LayoutParams catLp=lp(-1,-2);catLp.bottomMargin=8;categories.addView(cat,catLp); shown++;
+                    }
+                    if(shown==0) categories.addView(text("لا توجد نتائج مطابقة.",14,muted,false),lp(-1,50));
+                };
+                refreshCategories.run();
+                search.addTextChangedListener(new android.text.TextWatcher(){public void beforeTextChanged(CharSequence s,int start,int count,int after){} public void onTextChanged(CharSequence s,int start,int before,int count){refreshCategories.run();} public void afterTextChanged(android.text.Editable e){}});
+            }
         } else if(tab.equals("التسبيح")) {
             section("المسبحة الإلكترونية");
             TextView count=text(String.valueOf(dhikrCount),48,gold,true); count.setBackground(shape(panel,100,gold)); LinearLayout.LayoutParams cp=lp(-1,180);cp.setMargins(20,20,20,20);body.addView(count,cp);
@@ -181,6 +234,14 @@ public class MainActivity extends Activity {
             card(text("الصفحة محفوظة تلقائياً على هذا الجهاز.",14,muted,false));
             body.addView(button("العودة إلى المصحف",()->{tab="المصحف";showApp();}),lp(-1,54));
         }
+    }
+
+
+    private JSONObject loadHisnBook() {
+        try (java.io.InputStream in=getAssets().open("hisn_almuslim.json"); java.io.ByteArrayOutputStream out=new java.io.ByteArrayOutputStream()) {
+            byte[] buffer=new byte[8192]; int n; while((n=in.read(buffer))!=-1) out.write(buffer,0,n);
+            return new JSONObject(new String(out.toByteArray(),java.nio.charset.StandardCharsets.UTF_8));
+        } catch(Exception e) { return null; }
     }
 
     private void playSurah() {
