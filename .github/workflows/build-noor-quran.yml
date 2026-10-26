@@ -1,4 +1,4 @@
-name: Build Noor Quran APK
+name: Build standalone Noor Quran APK
 
 on:
   workflow_dispatch:
@@ -10,45 +10,37 @@ permissions:
 
 jobs:
   build:
-    name: Build Madani Quran APK and verify output
+    name: Build independent Android app
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout complete Quran Android source
+      - name: Checkout Noor Quran project
         uses: actions/checkout@v4
-        with:
-          repository: quran/quran_android
-          ref: main
-          path: source
-      - name: Set up JDK
+
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: '17'
+
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: wrapper
-      - name: Set app display name
-        working-directory: source
+          gradle-version: '8.9'
+
+      - name: Build standalone app
+        working-directory: noor-app
+        run: gradle assembleDebug --stacktrace
+
+      - name: Verify APK
         run: |
-          test -f app/src/main/res/values/strings.xml
-          sed -i 's#<string name="app_name">Quran</string>#<string name="app_name">نور القرآن</string>#' app/src/main/res/values/strings.xml
-          grep -F '<string name="app_name">نور القرآن</string>' app/src/main/res/values/strings.xml
-      - name: Build Madani variant
-        working-directory: source
-        run: |
-          chmod +x ./gradlew
-          ./gradlew assembleMadaniDebug --stacktrace
-      - name: Verify and rename APK
-        working-directory: source
-        run: |
-          APK="$(find app/build/outputs/apk -type f -name '*.apk' | head -n 1)"
-          test -n "$APK"
-          mkdir -p ../verified
-          cp "$APK" ../verified/Noor-Quran.apk
-          test -s ../verified/Noor-Quran.apk
-          ls -lh ../verified/Noor-Quran.apk
-      - name: Upload verified APK
+          APK="noor-app/app/build/outputs/apk/debug/app-debug.apk"
+          test -s "$APK"
+          mkdir -p verified
+          cp "$APK" verified/Noor-Quran.apk
+          unzip -t verified/Noor-Quran.apk
+          ls -lh verified/Noor-Quran.apk
+
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: Noor-Quran-APK
