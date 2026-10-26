@@ -102,6 +102,16 @@ public class MainActivity extends Activity {
         }
 
         if(tab.equals("المصحف")) {
+            // Keep the whole Mushaf screen in one vertical scroll container so the
+            // page image and recitation controls never compete for the same height.
+            ScrollView tabScroll = new ScrollView(this);
+            tabScroll.setFillViewport(false);
+            tabScroll.setVerticalScrollBarEnabled(true);
+            LinearLayout mushafContent = column();
+            mushafContent.setPadding(0, 0, 0, 14);
+            tabScroll.addView(mushafContent, new ScrollView.LayoutParams(-1, -2));
+            body.addView(tabScroll, new LinearLayout.LayoutParams(-1, -1));
+            body = mushafContent;
             LinearLayout hero=column(); hero.setPadding(16,14,16,14); hero.setBackground(shape(0xff172c25,24,0xff3c5947));
             LinearLayout heroTop=row(); LinearLayout heroTitles=column(); heroTitles.addView(text("المصحف المدني",21,cream,true),lp(-1,32)); heroTitles.addView(text("متابعة وردك اليومي",12,muted,false),lp(-1,22)); heroTop.addView(heroTitles,new LinearLayout.LayoutParams(0,-2,1)); heroTop.addView(text("604\nصفحة",13,gold,true),lp(68,54)); hero.addView(heroTop);
             View progressTrack=new View(this); progressTrack.setBackground(shape(0xff2d4539,8,0)); LinearLayout.LayoutParams trackLp=lp(-1,5);trackLp.topMargin=12;hero.addView(progressTrack,trackLp);
@@ -113,21 +123,21 @@ public class MainActivity extends Activity {
             marks.addView(button("☆  حفظ العلامة",()->{prefs.edit().putInt("bookmark",page).apply();Toast.makeText(this,"تم حفظ العلامة عند الصفحة "+page,Toast.LENGTH_SHORT).show();}),new LinearLayout.LayoutParams(0,-2,1));
             marks.addView(button("العودة للعلامة",()->{page=prefs.getInt("bookmark",1);prefs.edit().putInt("page",page).apply();renderTab();}),new LinearLayout.LayoutParams(0,-2,1)); card(marks);
             TextView pageLabel=text("صفحة "+page,14,gold,true); pageLabel.setGravity(Gravity.CENTER); card(pageLabel);
-            ScrollView offlineScroll=new ScrollView(this);
-            offlineScroll.setFillViewport(true);
             ImageView mushafPage=new ImageView(this);
-            mushafPage.setAdjustViewBounds(true);
+            mushafPage.setAdjustViewBounds(false);
             mushafPage.setScaleType(ImageView.ScaleType.FIT_CENTER);
             mushafPage.setBackground(shape(cream,8,gold));
+            mushafPage.setPadding(4,4,4,4);
             try(java.io.InputStream imageStream=getAssets().open(String.format(Locale.US,"mushaf/%03d.jpg",page))){
                 mushafPage.setImageDrawable(android.graphics.drawable.Drawable.createFromStream(imageStream,null));
+                LinearLayout.LayoutParams imageParams=lp(-1,460);
+                imageParams.bottomMargin=10;
+                body.addView(mushafPage,imageParams);
             } catch(Exception imageError) {
                 TextView fallback=text("صورة الصفحة غير متوفرة داخل هذه النسخة.",20,0xff243b2f,false);
                 fallback.setPadding(18,22,18,22);
-                offlineScroll.addView(fallback,new ScrollView.LayoutParams(-1,-2));
+                card(fallback);
             }
-            if(mushafPage.getDrawable()!=null) offlineScroll.addView(mushafPage,new ScrollView.LayoutParams(-1,-2));
-            LinearLayout.LayoutParams webParams=new LinearLayout.LayoutParams(-1,0,1); webParams.bottomMargin=10; body.addView(offlineScroll,webParams);
             TextView sourceNote=text("صفحات المصحف المدني الأصلية محفوظة داخل التطبيق وتعمل دون إنترنت.",11,gold,false); body.addView(sourceNote,lp(-1,-2));
             section("استمع إلى التلاوة");
             String[] reciterNames={"عبد الباسط عبد الصمد — مجوّد","أحمد العجمي","عبد الله خلف","محمد اللحيدان"};
