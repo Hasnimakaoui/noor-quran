@@ -10,6 +10,10 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.*;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.content.Intent;
+import android.net.Uri;
 import java.util.Locale;
 
 public class MainActivity extends Activity {
@@ -19,6 +23,7 @@ public class MainActivity extends Activity {
     private int page = 1, dhikrCount = 0;
     private String tab = "القرآن";
     private float downX;
+    private WebView quranWebView;
     @Override public void onCreate(Bundle b) { super.onCreate(b); prefs=getSharedPreferences("noor",0); page=prefs.getInt("page",1); dhikrCount=prefs.getInt("dhikr",0); showApp(); }
     private GradientDrawable shape(int color, int radius, int stroke) { GradientDrawable d=new GradientDrawable(); d.setColor(color); d.setCornerRadius(radius); if(stroke>0)d.setStroke(1,stroke); return d; }
     private TextView text(String s,int size,int color,boolean bold) { TextView t=new TextView(this); t.setText(s); t.setTextSize(size); t.setTextColor(color); t.setGravity(Gravity.CENTER); t.setTypeface(Typeface.create("sans-serif",bold?Typeface.BOLD:Typeface.NORMAL)); t.setPadding(8,8,8,8); return t; }
@@ -50,8 +55,8 @@ public class MainActivity extends Activity {
             pageCard.setOnTouchListener((v,e)->{if(e.getAction()==MotionEvent.ACTION_DOWN){downX=e.getX();return true;} if(e.getAction()==MotionEvent.ACTION_UP){float dx=e.getX()-downX;if(Math.abs(dx)>45)changePage(dx<0?1:-1);return true;}return true;});
             section("القرّاء");
             String[] reciters={"عبد الله خلف","أحمد العجمي","عبد الباسط عبد الصمد","محمد اللحيدان"};
-            for(String r:reciters) { TextView item=text("♫    "+r+"     ›",15,cream,true); item.setGravity(Gravity.RIGHT|Gravity.CENTER_VERTICAL); item.setBackground(shape(panel,16,0)); LinearLayout.LayoutParams p=lp(-1,50);p.bottomMargin=7;body.addView(item,p); item.setOnClickListener(v->Toast.makeText(this,"سيُضاف تشغيل التلاوة بعد ربط ملفات الصوت الموثوقة",Toast.LENGTH_LONG).show()); }
-            TextView note=text("تنبيه: هذه النسخة الأولية لا تحتوي بعد على صور صفحات المصحف الأصلية أو ملفات التلاوة.",11,muted,false); body.addView(note,lp(-1,-2));
+            for(String r:reciters) { TextView item=text("♫    "+r+"     ›",15,cream,true); item.setGravity(Gravity.RIGHT|Gravity.CENTER_VERTICAL); item.setBackground(shape(panel,16,0)); LinearLayout.LayoutParams p=lp(-1,50);p.bottomMargin=7;body.addView(item,p); item.setOnClickListener(v->startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://quran.com/reciters")))); }
+            
         } else if(tab.equals("الأذكار")) {
             section("أذكار يومية");
             String[] az={"سبحان الله","الحمد لله","لا إله إلا الله","الله أكبر","أستغفر الله"};
