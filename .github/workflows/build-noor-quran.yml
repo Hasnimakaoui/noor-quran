@@ -27,21 +27,26 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: Bundle complete Quran text for offline reading
+      - name: Bundle all 604 Madani Mushaf page images for offline reading
         run: |
-          mkdir -p noor-app/app/src/main/assets
-          curl --fail --location --retry 3 --silent --show-error \
-            "https://api.alquran.cloud/v1/quran/quran-uthmani" \
-            -o noor-app/app/src/main/assets/quran_offline.json
+          set -euo pipefail
+          mkdir -p noor-app/app/src/main/assets/mushaf
+          git clone --depth 1 https://github.com/akram-seid/quran-hd-images.git /tmp/quran-hd-images
           python3 - <<'PY'
-          import json
-          p = "noor-app/app/src/main/assets/quran_offline.json"
-          with open(p, encoding="utf-8") as f:
-              data = json.load(f)
-          surahs = data.get("data", {}).get("surahs", [])
-          ayahs = sum(len(s.get("ayahs", [])) for s in surahs)
-          assert len(surahs) == 114 and ayahs >= 6200, (len(surahs), ayahs)
-          print(f"Verified offline Quran data: {len(surahs)} surahs, {ayahs} ayahs")
+          import os, shutil
+          src = "/tmp/quran-hd-images/images"
+          dst = "noor-app/app/src/main/assets/mushaf"
+          missing = []
+          for page in range(1, 605):
+              name = f"{page:03d}.jpg"
+              source = os.path.join(src, name)
+              if not os.path.isfile(source):
+                  missing.append(name)
+              else:
+                  shutil.copy2(source, os.path.join(dst, name))
+          if missing:
+              raise SystemExit(f"Missing Mushaf pages ({len(missing)}): {missing[:10]}")
+          print("Verified all 604 Madani Mushaf page images.")
           PY
 
       - name: Build standalone app
