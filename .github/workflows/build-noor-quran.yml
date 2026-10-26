@@ -53,11 +53,11 @@ jobs:
               total_before += os.path.getsize(source)
               with Image.open(source) as im:
                   im = im.convert("RGB")
-                  # Keep page detail legible on phones while avoiding oversized APKs.
-                  if im.width > 1600:
-                      h = round(im.height * 1600 / im.width)
-                      im = im.resize((1600, h), Image.Resampling.LANCZOS)
-                  im.save(target, "JPEG", quality=84, optimize=True, progressive=False)
+                  # Smaller offline pages reduce the APK size while remaining suitable for phone reading.
+                  if im.width > 1200:
+                      h = round(im.height * 1200 / im.width)
+                      im = im.resize((1200, h), Image.Resampling.LANCZOS)
+                  im.save(target, "JPEG", quality=72, optimize=True, progressive=False)
               total_after += os.path.getsize(target)
           if missing:
               raise SystemExit(f"Missing Mushaf pages ({len(missing)}): {missing[:10]}")
