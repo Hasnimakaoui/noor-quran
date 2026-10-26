@@ -91,9 +91,20 @@ public class MainActivity extends Activity {
             heroBg.setCornerRadius(26);
             heroBg.setStroke(1,0xffd8b96f);
             hero.setBackground(heroBg);
-            TextView crest=text("۞",28,gold,true);
-            hero.addView(crest,lp(-1,40));
-            hero.addView(text("نُورُ القُرآن",28,cream,true),lp(-1,-2));
+            // Use a single clean, high-contrast emblem above the title.
+            TextView crest=text("۞",30,0xffffd36b,true);
+            crest.setGravity(Gravity.CENTER);
+            crest.setIncludeFontPadding(false);
+            crest.setShadowLayer(2.5f,0,0,0xffd8b96f);
+            LinearLayout.LayoutParams crestLp=lp(58,58);
+            crestLp.bottomMargin=8;
+            hero.addView(crest,crestLp);
+            TextView homeTitle=text("نُورُ القُرآن",28,cream,true);
+            homeTitle.setGravity(Gravity.CENTER);
+            homeTitle.setIncludeFontPadding(true);
+            homeTitle.setSingleLine(true);
+            homeTitle.setShadowLayer(1.5f,0,1,0xff000000);
+            hero.addView(homeTitle,lp(-1,-2));
             TextView verse=text("وَرَتِّلِ الْقُرْآنَ تَرْتِيلًا",19,0xffead49a,true); verse.setSingleLine(false); verse.setMaxLines(2); hero.addView(verse,lp(-1,-2));
             View goldLine=new View(this);
             goldLine.setBackground(shape(0xffb99a59,4,0));
