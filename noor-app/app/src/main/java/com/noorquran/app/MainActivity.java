@@ -107,14 +107,6 @@ public class MainActivity extends Activity {
     }
     private void showApp() {
         root=column(); root.setBackgroundColor(bg); root.setPadding(12,10,12,8);
-        // Keep content clear of Android 15 status and navigation system bars.
-        root.setOnApplyWindowInsetsListener((v, insets) -> {
-            int topInset = insets.getSystemWindowInsetTop();
-            int bottomInset = insets.getSystemWindowInsetBottom();
-            v.setPadding(12, topInset + 10, 12, bottomInset + 8);
-            return insets;
-        });
-        root.setFitsSystemWindows(true);
         LinearLayout header=row(); header.setPadding(8,8,8,8); header.setGravity(Gravity.CENTER_VERTICAL); header.setBackground(shape(0xff132820,22,0xffb99a59));
         LinearLayout emblem=column(); emblem.setGravity(Gravity.CENTER); TextView brand=text("ن",24,gold,true); brand.setIncludeFontPadding(false); brand.setBackground(shape(0xff10231c,40,0xffc9a75d)); emblem.addView(brand,lp(40,40)); header.addView(emblem,lp(42,42));
         LinearLayout title=column(); title.setGravity(Gravity.CENTER_VERTICAL); title.setMinimumWidth(0); TextView appTitle=text("نُورُ القُرآن",20,cream,true); appTitle.setSingleLine(true); appTitle.setMaxLines(1); appTitle.setEllipsize(android.text.TextUtils.TruncateAt.END); title.addView(appTitle,lp(-1,28)); TextView appSubtitle=text("المصحف • التلاوة • الأذكار",10,muted,false); appSubtitle.setSingleLine(true); appSubtitle.setEllipsize(android.text.TextUtils.TruncateAt.END); title.addView(appSubtitle,lp(-1,18)); LinearLayout.LayoutParams titleParams=new LinearLayout.LayoutParams(0,46,1); titleParams.leftMargin=6; titleParams.rightMargin=6; header.addView(title,titleParams);
