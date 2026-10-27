@@ -121,7 +121,7 @@ public class MainActivity extends Activity {
         for(String label:labels){ TextView n=text(label,12,label.equals(tab)?gold:muted,label.equals(tab)); n.setOnClickListener(v->{if(label.equals("المصحف"))inMushafReading=false; tab=label;showApp();}); nav.addView(n,new LinearLayout.LayoutParams(0,52,1)); }
         root.addView(nav,lp(-1,58)); setContentView(root); renderTab();
     }
-    private void section(String s) { TextView t=text(s,19,cream,true); t.setGravity(Gravity.RIGHT|Gravity.CENTER_VERTICAL); t.setPadding(4,14,4,10); body.addView(t,lp(-1,-2)); }
+    private void section(String s) { TextView t=text(s,19,cream,true); t.setIncludeFontPadding(true); t.setSingleLine(false); t.setMaxLines(2); t.setGravity(Gravity.RIGHT|Gravity.CENTER_VERTICAL); t.setPadding(12,10,12,10); t.setMinHeight(56); t.setBackground(shape(0xff172e24,16,0xffa98d50)); LinearLayout.LayoutParams p=lp(-1,-2); p.topMargin=4; p.bottomMargin=8; body.addView(t,p); }
     private void card(View v) { LinearLayout box=column(); box.setPadding(12,12,12,12); box.setBackground(shape(panel,20,0)); box.addView(v); LinearLayout.LayoutParams p=lp(-1,-2); p.bottomMargin=12; body.addView(box,p); }
     private void renderTab() {
         body.removeAllViews();
