@@ -42,6 +42,20 @@ public class MainActivity extends Activity {
     private String selectedDhikrCategory = null;
     private TextView audioStatus;
     @Override public void onCreate(Bundle b) { super.onCreate(b); prefs=getSharedPreferences("noor",0); page=prefs.getInt("page",1); dhikrCount=prefs.getInt("dhikr",0); showApp(); }
+    @Override public void onBackPressed() {
+        if (tab.equals("المصحف") && inMushafReading) {
+            inMushafReading = false;
+            renderTab();
+            return;
+        }
+        if (!tab.equals("الرئيسية")) {
+            tab = "الرئيسية";
+            inMushafReading = false;
+            showApp();
+            return;
+        }
+        super.onBackPressed();
+    }
     private GradientDrawable shape(int color, int radius, int stroke) { GradientDrawable d=new GradientDrawable(); d.setColor(color); d.setCornerRadius(radius); if(stroke>0)d.setStroke(1,stroke); return d; }
     private TextView text(String s,int size,int color,boolean bold) { TextView t=new TextView(this); t.setText(s); t.setTextSize(size); t.setTextColor(color); t.setGravity(Gravity.CENTER); t.setTypeface(Typeface.create("sans-serif",bold?Typeface.BOLD:Typeface.NORMAL)); t.setPadding(3,3,3,3); t.setIncludeFontPadding(true); return t; }
     private LinearLayout column() { LinearLayout l=new LinearLayout(this); l.setOrientation(LinearLayout.VERTICAL); return l; }
