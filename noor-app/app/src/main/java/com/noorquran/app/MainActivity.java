@@ -384,7 +384,7 @@ public class MainActivity extends Activity {
             body.addView(reciterScroll,new LinearLayout.LayoutParams(-1,-1)); body=reciterContent;
             if(reciterScreenStage==0) {
                 section("مكتبة القرّاء");
-                reciterContent.addView(button("← العودة إلى الرئيسية",()->{tab="الرئيسية";reciterScreenStage=0;showApp();}),lp(-1,48));
+                TextView backHome=button("← العودة إلى الرئيسية",()->{tab="الرئيسية";reciterScreenStage=0;showApp();}); backHome.setGravity(Gravity.CENTER); backHome.setSingleLine(true); backHome.setPadding(12,4,12,4); reciterContent.addView(backHome,lp(-1,56));
                 LinearLayout entry=column(); entry.setGravity(Gravity.CENTER); entry.setPadding(20,24,20,24);
                 entry.setBackground(shape(0xff142a20,28,0xffc9a75d));
                 TextView icon=text("♫",58,0xffffd36b,true); icon.setGravity(Gravity.CENTER);
@@ -396,7 +396,7 @@ public class MainActivity extends Activity {
                 entry.setOnClickListener(v->{reciterScreenStage=1;renderTab();});
             } else if(reciterScreenStage==1) {
                 section("اختر القارئ");
-                reciterContent.addView(button("← رجوع",()->{reciterScreenStage=0;renderTab();}),lp(-1,48));
+                TextView backReciter=button("← رجوع",()->{reciterScreenStage=0;renderTab();}); backReciter.setGravity(Gravity.CENTER); backReciter.setSingleLine(true); backReciter.setPadding(12,4,12,4); reciterContent.addView(backReciter,lp(-1,56));
                 String[] reciterNames={"عبد الباسط عبد الصمد — مجوّد","أحمد العجمي","عبد الله خلف","محمد اللحيدان"};
                 String[] editions={"عبد الباسط عبد الصمد","أحمد العجمي","عبد الله الخلف","محمد اللحيدان"};
                 String[] symbols={"١","٢","٣","٤"};
