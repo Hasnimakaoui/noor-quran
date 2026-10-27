@@ -501,7 +501,7 @@ public class MainActivity extends Activity {
                 }
             } else {
                 section("حصن المسلم كاملًا");
-                card(text("جميع أقسام الكتاب ونصوص الأذكار والحواشي المتاحة محفوظة داخل التطبيق وتعمل دون إنترنت. اضغط مطولًا على الذكر لنسخه.",14,muted,false));
+                card(text("جميع أقسام الكتاب والحواشي المتاحة محفوظة داخل التطبيق وتعمل دون إنترنت. اضغط مطولًا على الذكر لنسخه.",14,muted,false));
                 EditText search=new EditText(this); search.setSingleLine(true); search.setTextColor(cream); search.setHintTextColor(muted); search.setHint("ابحث عن قسم أو ذكر..."); search.setTextSize(16); search.setPadding(14,10,14,10); search.setBackground(shape(panel,18,gold)); card(search);
                 LinearLayout categories=column(); body.addView(categories,lp(-1,-2));
                 java.util.ArrayList<String> names=new java.util.ArrayList<>();
@@ -515,7 +515,7 @@ public class MainActivity extends Activity {
                         if(!match && arr!=null) for(int j=0;j<arr.length();j++) if(arr.optString(j).contains(query)){match=true;break;}
                         if(!match) continue;
                         int total=arr==null?0:arr.length();
-                        TextView cat=button(name+"  •  "+total+" نصوص  ←",()->{selectedDhikrCategory=name;renderTab();});
+                        TextView cat=button(name+"  ←",()->{selectedDhikrCategory=name;renderTab();});
                         LinearLayout.LayoutParams catLp=lp(-1,-2);catLp.bottomMargin=8;categories.addView(cat,catLp); shown++;
                     }
                     if(shown==0) categories.addView(text("لا توجد نتائج مطابقة.",14,muted,false),lp(-1,50));
