@@ -41,6 +41,7 @@ public class MainActivity extends Activity {
     private int selectedSurah=1;
     private String selectedDhikrCategory = null;
     private TextView audioStatus;
+    private int pendingTurnDirection = 0;
     @Override public void onCreate(Bundle b) {
         super.onCreate(b);
         getWindow().setStatusBarColor(bg);
@@ -330,6 +331,21 @@ public class MainActivity extends Activity {
             pageImageLp.topMargin=6; pageImageLp.bottomMargin=6;
             reading.addView(mushafPage,pageImageLp);
 
+            // 3D book-like reveal for the incoming Quran page.
+            if(pendingTurnDirection!=0) {
+                final int turnDirection=pendingTurnDirection;
+                pendingTurnDirection=0;
+                mushafPage.setCameraDistance(12000f*getResources().getDisplayMetrics().density);
+                mushafPage.setAlpha(0.72f);
+                mushafPage.setScaleX(0.94f);
+                mushafPage.setRotationY(turnDirection>0?-68f:68f);
+                mushafPage.post(()->{
+                    mushafPage.setPivotX(turnDirection>0?mushafPage.getWidth():0f);
+                    mushafPage.animate().rotationY(0f).scaleX(1f).alpha(1f)
+                        .setDuration(260).setInterpolator(new android.view.animation.DecelerateInterpolator()).start();
+                });
+            }
+
             mushafPage.setOnTouchListener((v,event)->{
                 if(event.getAction()==MotionEvent.ACTION_DOWN){downX=event.getX();return true;}
                 if(event.getAction()==MotionEvent.ACTION_UP){
@@ -613,5 +629,12 @@ public class MainActivity extends Activity {
         if(audioStatus!=null) audioStatus.setText("تم إيقاف التلاوة");
     }
     @Override protected void onDestroy(){playbackRequestId++;stopAudio();super.onDestroy();}
-    private void changePage(int delta) { page=Math.max(1,Math.min(604,page+delta)); prefs.edit().putInt("page",page).apply(); renderTab(); }
+    private void changePage(int delta) {
+        int nextPage=Math.max(1,Math.min(604,page+delta));
+        if(nextPage==page) return;
+        if(tab.equals("المصحف") && inMushafReading) pendingTurnDirection=delta;
+        page=nextPage;
+        prefs.edit().putInt("page",page).apply();
+        renderTab();
+    }
 }
