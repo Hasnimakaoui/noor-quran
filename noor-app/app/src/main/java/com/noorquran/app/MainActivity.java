@@ -64,20 +64,37 @@ public class MainActivity extends Activity {
     private TextView button(String s,Runnable action) { TextView v=text(s,15,cream,true); v.setBackground(shape(panel,22,gold)); v.setPadding(14,12,14,12); v.setOnClickListener(x->action.run()); return v; }
 
     private class OrnamentView extends View {
-        private final android.graphics.Paint p = new android.graphics.Paint(3);
+        private final android.graphics.Paint p = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
         public OrnamentView(android.content.Context context){super(context);setLayerType(View.LAYER_TYPE_SOFTWARE,null);}
         @Override protected void onDraw(android.graphics.Canvas canvas){
             super.onDraw(canvas);
-            float w=getWidth(), h=getHeight();
+            final float w=getWidth(), h=getHeight();
+            if(w<=0 || h<=0) return;
+            final float cy=h/2f;
+            final float unit=Math.min(h*0.30f, 8f);
+            if(unit<1f) return;
+            final float step=unit*4.2f;
             p.setStyle(android.graphics.Paint.Style.STROKE);
-            p.setStrokeWidth(1.1f);
-            p.setColor(0x99d8b96f);
-            float cy=h/2f;
-            float step=34f;
-            float radius=Math.min(5f,Math.max(2f,h*0.18f));
-            for(float x=step/2f;x<w-step/3f;x+=step){
-                canvas.drawCircle(x,cy,radius,p);
+            p.setStrokeWidth(Math.max(1f, unit*0.13f));
+            p.setStrokeJoin(android.graphics.Paint.Join.ROUND);
+            p.setStrokeCap(android.graphics.Paint.Cap.ROUND);
+            p.setColor(0xffb99a59);
+            // A separated chain of four-point Islamic star/diamond motifs.
+            // Every motif is bounded by its own cell, so resizing cannot stack
+            // circles, squares and diagonals on top of one another.
+            for(float cx=step/2f; cx<w-step/2f; cx+=step){
+                android.graphics.Path diamond=new android.graphics.Path();
+                diamond.moveTo(cx,cy-unit);
+                diamond.lineTo(cx+unit,cy);
+                diamond.lineTo(cx,cy+unit);
+                diamond.lineTo(cx-unit,cy);
+                diamond.close();
+                canvas.drawPath(diamond,p);
+                canvas.drawCircle(cx,cy,unit*0.22f,p);
             }
+            // Fine end caps stay within the view's measured bounds.
+            p.setStrokeWidth(Math.max(1f,unit*0.10f));
+            canvas.drawLine(0,cy,w,cy,p);
         }
     }
     private void showApp() {
