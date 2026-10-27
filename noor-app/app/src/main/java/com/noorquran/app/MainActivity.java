@@ -397,8 +397,49 @@ public class MainActivity extends Activity {
             } else {
                 section("اختر السورة للاستماع");
                 reciterContent.addView(button("← تغيير القارئ: "+selectedReciter,()->{reciterScreenStage=1;renderTab();}),lp(-1,-2));
-                audioStatus=text("اختر صورة السورة لبدء الاستماع بصوت "+selectedReciter,13,muted,false);
+                audioStatus=text("اختر سورة من القائمة لبدء التلاوة بصوت "+selectedReciter,13,muted,false);
                 card(audioStatus);
+
+                // Compact Quran audio player controls; existing playback logic is unchanged.
+                LinearLayout playerPanel=column();
+                playerPanel.setPadding(14,14,14,14);
+                playerPanel.setBackground(shape(0xff172e24,22,0xffa98d50));
+                TextView playerTitle=text("مشغّل التلاوة",18,gold,true);
+                playerTitle.setGravity(Gravity.RIGHT|Gravity.CENTER_VERTICAL);
+                playerPanel.addView(playerTitle,lp(-1,-2));
+                TextView playerHint=text("ابدأ الاستماع باختيار سورة، ثم تحكّم بالتشغيل من هنا",12,muted,false);
+                playerHint.setGravity(Gravity.RIGHT|Gravity.CENTER_VERTICAL);
+                LinearLayout.LayoutParams playerHintLp=lp(-1,-2); playerHintLp.topMargin=4;
+                playerPanel.addView(playerHint,playerHintLp);
+                LinearLayout playerButtons=row();
+                playerButtons.setGravity(Gravity.CENTER);
+                LinearLayout.LayoutParams playerButtonsLp=lp(-1,-2); playerButtonsLp.topMargin=12;
+                TextView resumeButton=button("▶ تشغيل",()->playSurah());
+                TextView pauseButton=button("Ⅱ إيقاف مؤقت",()->{
+                    try {
+                        if(player!=null && player.isPlaying()) {
+                            player.pause();
+                            if(audioStatus!=null) audioStatus.setText("التلاوة متوقفة مؤقتاً");
+                        } else if(player!=null) {
+                            player.start();
+                            if(audioStatus!=null) audioStatus.setText("تستمر التلاوة الآن");
+                        } else if(audioStatus!=null) {
+                            audioStatus.setText("اختر سورة أولاً لبدء التلاوة");
+                        }
+                    } catch(Exception ignored) {
+                        if(audioStatus!=null) audioStatus.setText("تعذر استئناف التلاوة");
+                    }
+                });
+                TextView stopButton=button("■ إيقاف",()->stopAudio());
+                playerButtons.addView(resumeButton,new LinearLayout.LayoutParams(0,-2,1));
+                View playerGap1=new View(this); playerButtons.addView(playerGap1,lp(6,1));
+                playerButtons.addView(pauseButton,new LinearLayout.LayoutParams(0,-2,1));
+                View playerGap2=new View(this); playerButtons.addView(playerGap2,lp(6,1));
+                playerButtons.addView(stopButton,new LinearLayout.LayoutParams(0,-2,1));
+                playerPanel.addView(playerButtons,playerButtonsLp);
+                LinearLayout.LayoutParams playerPanelLp=lp(-1,-2); playerPanelLp.bottomMargin=12;
+                reciterContent.addView(playerPanel,playerPanelLp);
+
                 String[] surahs={"الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الانفطار","المطففين","الانشقاق","البروج","الطارق","الأعلى","الغاشية","الفجر","البلد","الشمس","الليل","الضحى","الشرح","التين","العلق","القدر","البينة","الزلزلة","العاديات","القارعة","التكاثر","العصر","الهمزة","الفيل","قريش","الماعون","الكوثر","الكافرون","النصر","المسد","الإخلاص","الفلق","الناس"};
                 for(int si=0;si<surahs.length;si++){
                     final int chosenSurah=si+1;
