@@ -46,6 +46,8 @@ public class MainActivity extends Activity {
         getWindow().setStatusBarColor(bg);
         getWindow().setNavigationBarColor(bg);
         getWindow().getDecorView().setSystemUiVisibility(0);
+        // Keep app content below Android status/navigation bars on all supported devices.
+        getWindow().getDecorView().setFitsSystemWindows(true);
         prefs=getSharedPreferences("noor",0);
         page=prefs.getInt("page",1);
         dhikrCount=prefs.getInt("dhikr",0);
@@ -106,10 +108,10 @@ public class MainActivity extends Activity {
         }
     }
     private void showApp() {
-        root=column(); root.setBackgroundColor(bg); root.setPadding(12,10,12,8);
-        LinearLayout header=row(); header.setPadding(8,8,8,8); header.setGravity(Gravity.CENTER_VERTICAL); header.setBackground(shape(0xff132820,22,0xffb99a59));
+        root=column(); root.setBackgroundColor(bg); root.setFitsSystemWindows(true); root.setClipChildren(false); root.setClipToPadding(false); root.setPadding(14,12,14,10);
+        LinearLayout header=row(); header.setPadding(10,10,10,10); header.setGravity(Gravity.CENTER_VERTICAL); header.setMinimumHeight(72); header.setClipChildren(false); header.setBackground(shape(0xff132820,22,0xffb99a59));
         LinearLayout emblem=column(); emblem.setGravity(Gravity.CENTER); TextView brand=text("ن",24,gold,true); brand.setIncludeFontPadding(false); brand.setBackground(shape(0xff10231c,40,0xffc9a75d)); emblem.addView(brand,lp(40,40)); header.addView(emblem,lp(42,42));
-        LinearLayout title=column(); title.setGravity(Gravity.CENTER_VERTICAL); title.setMinimumWidth(0); TextView appTitle=text("نُورُ القُرآن",20,cream,true); appTitle.setSingleLine(true); appTitle.setMaxLines(1); appTitle.setEllipsize(android.text.TextUtils.TruncateAt.END); title.addView(appTitle,lp(-1,28)); TextView appSubtitle=text("المصحف • التلاوة • الأذكار",10,muted,false); appSubtitle.setSingleLine(true); appSubtitle.setEllipsize(android.text.TextUtils.TruncateAt.END); title.addView(appSubtitle,lp(-1,18)); LinearLayout.LayoutParams titleParams=new LinearLayout.LayoutParams(0,46,1); titleParams.leftMargin=6; titleParams.rightMargin=6; header.addView(title,titleParams);
+        LinearLayout title=column(); title.setGravity(Gravity.CENTER_VERTICAL); title.setMinimumWidth(0); TextView appTitle=text("نُورُ القُرآن",20,cream,true); appTitle.setIncludeFontPadding(true); appTitle.setSingleLine(true); appTitle.setMaxLines(1); appTitle.setEllipsize(android.text.TextUtils.TruncateAt.END); title.addView(appTitle,lp(-1,-2)); TextView appSubtitle=text("المصحف • التلاوة • الأذكار",11,muted,false); appSubtitle.setIncludeFontPadding(true); appSubtitle.setSingleLine(true); appSubtitle.setEllipsize(android.text.TextUtils.TruncateAt.END); title.addView(appSubtitle,lp(-1,-2)); LinearLayout.LayoutParams titleParams=new LinearLayout.LayoutParams(0,-2,1); titleParams.leftMargin=8; titleParams.rightMargin=8; header.addView(title,titleParams);
         TextView moon=text("☾",21,gold,true); moon.setBackground(shape(0xff263d34,36,0)); header.addView(moon,lp(36,36)); root.addView(header);
         View line=new View(this); line.setBackgroundColor(0xff263f35); LinearLayout.LayoutParams lineParams=lp(-1,1);lineParams.topMargin=9;root.addView(line,lineParams);
         body=column(); LinearLayout.LayoutParams bp=new LinearLayout.LayoutParams(-1,0,1); bp.topMargin=8; root.addView(body,bp);
@@ -144,7 +146,7 @@ public class MainActivity extends Activity {
             OrnamentView crest=new OrnamentView(this);
             crest.setContentDescription("زخرفة هندسية إسلامية");
             // Reserve a compact, dedicated row above all Arabic text.
-            LinearLayout.LayoutParams crestLp=lp(-1,30);
+            LinearLayout.LayoutParams crestLp=lp(-1,42);
             crestLp.bottomMargin=14;
             hero.addView(crest,crestLp);
             TextView homeTitle=text("نُورُ القُرآن",28,cream,true);
@@ -278,7 +280,7 @@ public class MainActivity extends Activity {
                     item.setGravity(Gravity.CENTER_VERTICAL);
                     item.setPadding(12,0,12,0);
                     item.setBackground(shape(panel,16,gold));
-                    TextView name=text(surahs[si],17,cream,true);
+                    TextView name=text(surahs[si],17,cream,true); name.setIncludeFontPadding(true); name.setMinHeight(44);
                     name.setGravity(Gravity.RIGHT|Gravity.CENTER_VERTICAL);
                     name.setSingleLine(true);
                     name.setEllipsize(android.text.TextUtils.TruncateAt.END);
@@ -288,7 +290,7 @@ public class MainActivity extends Activity {
                     number.setBackground(shape(0xff263d34,10,0));
                     item.addView(number,lp(46,34));
                     item.setOnClickListener(v->{page=targetPage;prefs.edit().putInt("page",page).apply();inMushafReading=true;renderTab();});
-                    LinearLayout.LayoutParams itemLp=lp(-1,54);itemLp.bottomMargin=7;index.addView(item,itemLp);
+                    LinearLayout.LayoutParams itemLp=lp(-1,60);itemLp.bottomMargin=8;index.addView(item,itemLp);
                 }
                 indexScroll.addView(index,new ScrollView.LayoutParams(-1,-2));
                 body.addView(indexScroll,new LinearLayout.LayoutParams(-1,-1));
@@ -404,7 +406,7 @@ public class MainActivity extends Activity {
                     tile.setBackground(shape(0xff142a20,18,0xff526c54));
                     TextView picture=text("♪",28,0xffffd36b,true); picture.setBackground(shape(0xff203c2e,50,0xffa98d50));
                     LinearLayout.LayoutParams pictureLp=lp(66,66); pictureLp.bottomMargin=6; tile.addView(picture,pictureLp);
-                    tile.addView(text(surahs[si],15,cream,true),lp(-1,-2));
+                    TextView surahLabel=text(surahs[si],16,cream,true); surahLabel.setIncludeFontPadding(true); surahLabel.setMinHeight(36); surahLabel.setMaxLines(2); surahLabel.setGravity(Gravity.CENTER); tile.addView(surahLabel,lp(-1,-2));
                     LinearLayout.LayoutParams tileLp=lp(-1,-2); tileLp.bottomMargin=8; reciterContent.addView(tile,tileLp);
                     tile.setOnClickListener(v->{selectedSurah=chosenSurah;playSurah();});
                 }
