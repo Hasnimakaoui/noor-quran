@@ -29,6 +29,7 @@ public class MainActivity extends Activity {
     private LinearLayout root, body, nav;
     private SharedPreferences prefs;
     private int page = 1, dhikrCount = 0;
+    private boolean inMushafReading = false;
     private String tab = "الرئيسية";
     private float downX;
     private WebView quranWebView;
@@ -68,7 +69,7 @@ public class MainActivity extends Activity {
         body=column(); LinearLayout.LayoutParams bp=new LinearLayout.LayoutParams(-1,0,1); bp.topMargin=8; root.addView(body,bp);
         nav=row(); nav.setBackground(shape(panel,24,0xff344e43)); nav.setPadding(3,4,3,4);
         String[] labels={"الرئيسية","المصحف","القراء","الأذكار"};
-        for(String label:labels){ TextView n=text(label,12,label.equals(tab)?gold:muted,label.equals(tab)); n.setOnClickListener(v->{tab=label;showApp();}); nav.addView(n,new LinearLayout.LayoutParams(0,52,1)); }
+        for(String label:labels){ TextView n=text(label,12,label.equals(tab)?gold:muted,label.equals(tab)); n.setOnClickListener(v->{if(label.equals("المصحف"))inMushafReading=false; tab=label;showApp();}); nav.addView(n,new LinearLayout.LayoutParams(0,52,1)); }
         root.addView(nav,lp(-1,58)); setContentView(root); renderTab();
     }
     private void section(String s) { TextView t=text(s,19,cream,true); t.setGravity(Gravity.RIGHT|Gravity.CENTER_VERTICAL); t.setPadding(4,14,4,10); body.addView(t,lp(-1,-2)); }
@@ -215,6 +216,25 @@ public class MainActivity extends Activity {
         }
 
         if(tab.equals("المصحف")) {
+            if(!inMushafReading) {
+                ScrollView indexScroll=new ScrollView(this);
+                indexScroll.setFillViewport(true);
+                LinearLayout index=column();
+                index.setPadding(4,4,4,16);
+                section("فهرس سور القرآن الكريم");
+                index.addView(button("متابعة القراءة من الصفحة "+page,()->{inMushafReading=true;renderTab();}),lp(-1,48));
+                String[] surahs={"الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الانفطار","المطففين","الانشقاق","البروج","الطارق","الأعلى","الغاشية","الفجر","البلد","الشمس","الليل","الضحى","الشرح","التين","العلق","القدر","البينة","الزلزلة","العاديات","القارعة","التكاثر","العصر","الهمزة","الفيل","قريش","الماعون","الكوثر","الكافرون","النصر","المسد","الإخلاص","الفلق","الناس"};
+                int[] startPages={1,2,50,77,106,128,151,177,187,208,221,235,249,255,262,267,282,293,305,312,322,332,342,350,359,367,377,385,396,404,411,415,418,428,434,440,446,453,458,467,477,483,489,496,499,502,507,511,515,518,520,523,526,528,531,534,537,542,545,549,551,553,554,556,558,560,562,564,566,568,570,572,574,575,577,578,580,582,583,585,586,587,588,589,590,591,592,593,594,595,596,597,598,599,600,601,602,603,604,604,604,604,604,604,604,604,604,604,604,604,604,604};
+                for(int si=0;si<surahs.length;si++){
+                    final int targetPage=startPages[si];
+                    TextView item=button((si+1)+"  •  "+surahs[si],()->{page=targetPage;prefs.edit().putInt("page",page).apply();inMushafReading=true;renderTab();});
+                    item.setGravity(Gravity.RIGHT|Gravity.CENTER_VERTICAL);
+                    LinearLayout.LayoutParams itemLp=lp(-1,48);itemLp.bottomMargin=5;index.addView(item,itemLp);
+                }
+                indexScroll.addView(index,new ScrollView.LayoutParams(-1,-2));
+                body.addView(indexScroll,new LinearLayout.LayoutParams(-1,-1));
+                return;
+            }
             // Reading-only Mushaf: maximize the page and support finger-swipe page turning.
             LinearLayout reading=column();
             reading.setPadding(0,0,0,4);
