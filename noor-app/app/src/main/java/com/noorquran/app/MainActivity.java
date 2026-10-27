@@ -92,9 +92,8 @@ public class MainActivity extends Activity {
                 canvas.drawPath(diamond,p);
                 canvas.drawCircle(cx,cy,unit*0.22f,p);
             }
-            // Fine end caps stay within the view's measured bounds.
-            p.setStrokeWidth(Math.max(1f,unit*0.10f));
-            canvas.drawLine(0,cy,w,cy,p);
+            // No horizontal stroke through the motif centers: keep the ornament
+            // visually separate from Arabic lettering and adjacent elements.
         }
     }
     private void showApp() {
@@ -135,8 +134,9 @@ public class MainActivity extends Activity {
             // Use a single clean, high-contrast emblem above the title.
             OrnamentView crest=new OrnamentView(this);
             crest.setContentDescription("زخرفة هندسية إسلامية");
-            LinearLayout.LayoutParams crestLp=lp(-1,58);
-            crestLp.bottomMargin=8;
+            // Reserve a compact, dedicated row above all Arabic text.
+            LinearLayout.LayoutParams crestLp=lp(-1,30);
+            crestLp.bottomMargin=14;
             hero.addView(crest,crestLp);
             TextView homeTitle=text("نُورُ القُرآن",28,cream,true);
             homeTitle.setGravity(Gravity.CENTER);
