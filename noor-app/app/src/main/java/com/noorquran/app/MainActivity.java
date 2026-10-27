@@ -109,7 +109,7 @@ public class MainActivity extends Activity {
             heroBg.setStroke(1,0xffd8b96f);
             hero.setBackground(heroBg);
             // Use a single clean, high-contrast emblem above the title.
-            TextView crest=text("✦",30,0xffffd36b,true);
+            TextView crest=text("",30,0xffffd36b,true);
             crest.setGravity(Gravity.CENTER);
             crest.setIncludeFontPadding(false);
             crest.setShadowLayer(2.5f,0,0,0xffd8b96f);
@@ -241,9 +241,13 @@ public class MainActivity extends Activity {
                 int[] startPages={1,2,50,77,106,128,151,177,187,208,221,235,249,255,262,267,282,293,305,312,322,332,342,350,359,367,377,385,396,404,411,415,418,428,434,440,446,453,458,467,477,483,489,496,499,502,507,511,515,518,520,523,526,528,531,534,537,542,545,549,551,553,554,556,558,560,562,564,566,568,570,572,574,575,577,578,580,582,583,585,586,587,588,589,590,591,592,593,594,595,596,597,598,599,600,601,602,603,604,604,604,604,604,604,604,604,604,604,604,604,604,604,604,604};
                 for(int si=0;si<surahs.length;si++){
                     final int targetPage=startPages[si];
-                    TextView item=button((si+1)+"  •  "+surahs[si],()->{page=targetPage;prefs.edit().putInt("page",page).apply();inMushafReading=true;renderTab();});
+                    TextView item=button(String.format(Locale.ROOT,"%03d",si+1)+"   "+surahs[si],()->{page=targetPage;prefs.edit().putInt("page",page).apply();inMushafReading=true;renderTab();});
+                    item.setTextSize(16);
+                    item.setSingleLine(true);
+                    item.setEllipsize(android.text.TextUtils.TruncateAt.END);
                     item.setGravity(Gravity.RIGHT|Gravity.CENTER_VERTICAL);
-                    LinearLayout.LayoutParams itemLp=lp(-1,48);itemLp.bottomMargin=5;index.addView(item,itemLp);
+                    item.setPadding(18,8,18,8);
+                    LinearLayout.LayoutParams itemLp=lp(-1,52);itemLp.bottomMargin=7;index.addView(item,itemLp);
                 }
                 indexScroll.addView(index,new ScrollView.LayoutParams(-1,-2));
                 body.addView(indexScroll,new LinearLayout.LayoutParams(-1,-1));
