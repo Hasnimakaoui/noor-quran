@@ -133,11 +133,9 @@ public class MainActivity extends Activity {
             heroBg.setStroke(1,0xffd8b96f);
             hero.setBackground(heroBg);
             // Use a single clean, high-contrast emblem above the title.
-            TextView crest=text("",30,0xffffd36b,true);
-            crest.setGravity(Gravity.CENTER);
-            crest.setIncludeFontPadding(false);
-            crest.setShadowLayer(2.5f,0,0,0xffd8b96f);
-            LinearLayout.LayoutParams crestLp=lp(58,58);
+            OrnamentView crest=new OrnamentView(this);
+            crest.setContentDescription("زخرفة هندسية إسلامية");
+            LinearLayout.LayoutParams crestLp=lp(-1,58);
             crestLp.bottomMargin=8;
             hero.addView(crest,crestLp);
             TextView homeTitle=text("نُورُ القُرآن",28,cream,true);
