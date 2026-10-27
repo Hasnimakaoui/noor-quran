@@ -67,10 +67,17 @@ public class MainActivity extends Activity {
         private final android.graphics.Paint p = new android.graphics.Paint(3);
         public OrnamentView(android.content.Context context){super(context);setLayerType(View.LAYER_TYPE_SOFTWARE,null);}
         @Override protected void onDraw(android.graphics.Canvas canvas){
-            super.onDraw(canvas); float w=getWidth(), h=getHeight(); p.setStyle(android.graphics.Paint.Style.STROKE); p.setStrokeWidth(1.3f); p.setColor(0x99d8b96f);
-            float cy=h/2f; float step=Math.max(22f,Math.min(34f,h*0.8f));
-            for(float x=step/2;x<w;x+=step){canvas.drawCircle(x,cy,step*0.28f,p); canvas.drawRect(x-step*0.2f,cy-step*0.2f,x+step*0.2f,cy+step*0.2f,p); canvas.drawCircle(x,cy,step*0.46f,p);}
-            p.setStyle(android.graphics.Paint.Style.FILL); p.setColor(0xffd8b96f); canvas.drawCircle(step/2,cy,2.5f,p); canvas.drawCircle(w-step/2,cy,2.5f,p);
+            super.onDraw(canvas);
+            float w=getWidth(), h=getHeight();
+            p.setStyle(android.graphics.Paint.Style.STROKE);
+            p.setStrokeWidth(1.1f);
+            p.setColor(0x99d8b96f);
+            float cy=h/2f;
+            float step=34f;
+            float radius=Math.min(5f,Math.max(2f,h*0.18f));
+            for(float x=step/2f;x<w-step/3f;x+=step){
+                canvas.drawCircle(x,cy,radius,p);
+            }
         }
     }
     private void showApp() {
@@ -241,13 +248,23 @@ public class MainActivity extends Activity {
                 int[] startPages={1,2,50,77,106,128,151,177,187,208,221,235,249,255,262,267,282,293,305,312,322,332,342,350,359,367,377,385,396,404,411,415,418,428,434,440,446,453,458,467,477,483,489,496,499,502,507,511,515,518,520,523,526,528,531,534,537,542,545,549,551,553,554,556,558,560,562,564,566,568,570,572,574,575,577,578,580,582,583,585,586,587,588,589,590,591,592,593,594,595,596,597,598,599,600,601,602,603,604,604,604,604,604,604,604,604,604,604,604,604,604,604,604,604};
                 for(int si=0;si<surahs.length;si++){
                     final int targetPage=startPages[si];
-                    TextView item=button(String.format(Locale.ROOT,"%03d",si+1)+"   "+surahs[si],()->{page=targetPage;prefs.edit().putInt("page",page).apply();inMushafReading=true;renderTab();});
-                    item.setTextSize(16);
-                    item.setSingleLine(true);
-                    item.setEllipsize(android.text.TextUtils.TruncateAt.END);
-                    item.setGravity(Gravity.RIGHT|Gravity.CENTER_VERTICAL);
-                    item.setPadding(18,8,18,8);
-                    LinearLayout.LayoutParams itemLp=lp(-1,52);itemLp.bottomMargin=7;index.addView(item,itemLp);
+                    LinearLayout item=row();
+                    item.setOrientation(LinearLayout.HORIZONTAL);
+                    item.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+                    item.setGravity(Gravity.CENTER_VERTICAL);
+                    item.setPadding(12,0,12,0);
+                    item.setBackground(shape(panel,16,gold));
+                    TextView name=text(surahs[si],17,cream,true);
+                    name.setGravity(Gravity.RIGHT|Gravity.CENTER_VERTICAL);
+                    name.setSingleLine(true);
+                    name.setEllipsize(android.text.TextUtils.TruncateAt.END);
+                    name.setPadding(8,0,8,0);
+                    item.addView(name,new LinearLayout.LayoutParams(0,-1,1f));
+                    TextView number=text(String.format(Locale.ROOT,"%03d",si+1),13,gold,true);
+                    number.setBackground(shape(0xff263d34,10,0));
+                    item.addView(number,lp(46,34));
+                    item.setOnClickListener(v->{page=targetPage;prefs.edit().putInt("page",page).apply();inMushafReading=true;renderTab();});
+                    LinearLayout.LayoutParams itemLp=lp(-1,54);itemLp.bottomMargin=7;index.addView(item,itemLp);
                 }
                 indexScroll.addView(index,new ScrollView.LayoutParams(-1,-2));
                 body.addView(indexScroll,new LinearLayout.LayoutParams(-1,-1));
